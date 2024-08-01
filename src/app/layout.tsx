@@ -1,9 +1,52 @@
 import "@/styles/globals.css";
 
-import { GeistSans } from "geist/font/sans";
+import localFont from "next/font/local";
 import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "@/trpc/react";
+
+const font = localFont({
+  src: [
+    {
+      path: "./font/Handjet-Thin.ttf",
+      weight: "100",
+    },
+    {
+      path: "./font/Handjet-ExtraLight.ttf",
+      weight: "200",
+    },
+    {
+      path: "./font/Handjet-Light.ttf",
+      weight: "300",
+    },
+    {
+      path: "./font/Handjet-Regular.ttf",
+      weight: "400",
+    },
+    {
+      path: "./font/Handjet-Medium.ttf",
+      weight: "500",
+    },
+    {
+      path: "./font/Handjet-SemiBold.ttf",
+      weight: "600",
+    },
+    {
+      path: "./font/Handjet-Bold.ttf",
+      weight: "700",
+    },
+    {
+      path: "./font/Handjet-ExtraBold.ttf",
+      weight: "800",
+    },
+    {
+      path: "./font/Handjet-Black.ttf",
+      weight: "900",
+    },
+  ],
+  display: "swap",
+  variable: "--my-font",
+});
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -15,7 +58,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable}`}>
+    <html lang="en" className={font.variable}>
       <body>
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
