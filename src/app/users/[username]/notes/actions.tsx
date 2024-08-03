@@ -2,13 +2,14 @@
 
 import { db } from "@/utils/db.server";
 import { invariantError } from "@/utils/misc";
-import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { redirect, RedirectType } from "next/navigation";
 
 type ActionResult<P = Record<string, unknown>> = { error?: string } & P;
 
 type EditState = { noteId: string; username: string };
 export async function edit(
-  prevState: ActionResult<EditState>,
+  { noteId, username }: ActionResult<EditState>,
   formData: FormData,
 ): Promise<ActionResult<EditState>> | never {
   const title = formData.get("title");
@@ -19,11 +20,12 @@ export async function edit(
   invariantError(typeof content === "string", "Content is required");
 
   db.note.update({
-    where: { id: { equals: prevState.noteId } },
+    where: { id: { equals: noteId } },
     data: { title, content },
   });
 
-  redirect(`/users/${prevState.username}/notes`);
+  revalidatePath(`/users/${username}/notes/${noteId}/edit`);
+  redirect(`/users/${username}/notes`);
 }
 
 export async function remove(
@@ -36,5 +38,5 @@ export async function remove(
 
   db.note.delete({ where: { id: { equals: noteId } } });
 
-  redirect(`/users/${username}/notes`);
+  redirect(`/users/${username}/notes`, RedirectType.replace);
 }

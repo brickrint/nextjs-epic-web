@@ -1,22 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 import { db } from "@/utils/db.server";
-import { NavLink } from "../_components/Link";
+import { NavLink } from "../_components/link";
+import { getUser, type PageProps } from "../page";
 
-export default function NotesRoute({
-  children,
-  params,
-}: Readonly<{ children: React.ReactNode; params: { username: string } }>) {
-  const { username } = params;
-
-  const owner = db.user.findFirst({
-    where: { username: { equals: username } },
-  });
-
-  if (!owner) {
-    notFound();
-  }
+export function getNotes(username: string) {
+  const owner = getUser(username);
 
   const notes = db.note
     .findMany({
@@ -27,6 +18,20 @@ export default function NotesRoute({
       },
     })
     .map(({ id, title }) => ({ id, title }));
+
+  return {
+    owner,
+    notes,
+  };
+}
+
+export default function NotesRoute({
+  children,
+  params,
+}: Readonly<{ children: React.ReactNode } & PageProps>) {
+  const { username } = params;
+
+  const { owner, notes } = getNotes(username);
 
   const ownerDisplayName = owner.name ?? owner.username;
   const navLinkDefaultClassName =
@@ -65,4 +70,18 @@ export default function NotesRoute({
       </div>
     </main>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { owner, notes } = getNotes(params.username);
+  const displayName = owner.name ?? params.username;
+  const noteCount = notes.length ?? 0;
+  const notesText = noteCount === 1 ? "note" : "notes";
+
+  return {
+    title: `${displayName}'s Notes | Epic Notes`,
+    description: `Checkout ${displayName}'s ${noteCount} ${notesText} on Epic Notes`,
+  };
 }

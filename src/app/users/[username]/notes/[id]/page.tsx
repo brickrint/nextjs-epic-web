@@ -5,26 +5,29 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SubmitButton } from "@/app/_components/ui/submit-button";
 import { remove } from "../actions";
+import { getUser, type PageProps } from "../../page";
+import { type Metadata } from "next";
 
-export default function SomeNoteId({
-  params,
-}: {
-  params: { username: string; id: string };
-}) {
+export function getNote(id: string) {
   const note = db.note.findFirst({
     where: {
-      id: { equals: params.id },
+      id: { equals: id },
     },
-  });
-
-  const deleteNote = remove.bind(null, {
-    noteId: params.id,
-    username: params.username,
   });
 
   if (!note) {
     notFound();
   }
+  return note;
+}
+
+export default function SomeNoteId({ params }: Readonly<PageProps>) {
+  const note = getNote(params.id);
+
+  const deleteNote = remove.bind(null, {
+    noteId: params.id,
+    username: params.username,
+  });
 
   return (
     <>
@@ -51,4 +54,23 @@ export default function SomeNoteId({
       </div>
     </>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const owner = getUser(params.username);
+  const note = getNote(params.id);
+
+  const displayName = owner.name ?? params.username;
+  const noteTitle = note.title ?? "Note";
+  const noteContentsSummary =
+    note.content.length > 100
+      ? note.content.slice(0, 97) + "..."
+      : "No content";
+
+  return {
+    title: `${noteTitle} | ${displayName}'s Notes | Epic Notes`,
+    description: noteContentsSummary,
+  };
 }

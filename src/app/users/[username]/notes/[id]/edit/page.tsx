@@ -8,6 +8,7 @@ import { Input } from "@/app/_components/ui/input";
 import { Label } from "@/app/_components/ui/label";
 import { db } from "@/utils/db.server";
 import { edit } from "@/app/users/[username]/notes/actions";
+import { StatusButton } from "../../../_components/status-button";
 
 export default function NoteEdit({
   params,
@@ -54,7 +55,7 @@ export default function NoteEdit({
           Reset
         </Button>
 
-        <Button type="submit">Submit</Button>
+        <StatusButton type="submit">Submit</StatusButton>
       </div>
     </form>
   );
