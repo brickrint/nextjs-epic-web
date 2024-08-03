@@ -6,8 +6,6 @@ import { type Metadata } from "next";
 import Link from "next/link";
 
 import { TRPCReactProvider } from "@/trpc/react";
-import Visualizer from "next-route-visualizer";
-import { env } from "@/env";
 import { cn } from "@/utils/styles";
 
 export const metadata: Metadata = {
@@ -50,7 +48,6 @@ export default function RootLayout({
           </Link>
           <p>Built with ♥️ by {username}</p>
         </div>
-        {env.DEBUG_ROUTE === "true" && <Visualizer />}
       </body>
     </html>
   );
