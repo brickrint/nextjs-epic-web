@@ -1,52 +1,14 @@
 import "@/styles/globals.css";
 
-import localFont from "next/font/local";
+import os from "node:os";
+import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
+import Link from "next/link";
 
 import { TRPCReactProvider } from "@/trpc/react";
-
-const font = localFont({
-  src: [
-    {
-      path: "./font/Handjet-Thin.ttf",
-      weight: "100",
-    },
-    {
-      path: "./font/Handjet-ExtraLight.ttf",
-      weight: "200",
-    },
-    {
-      path: "./font/Handjet-Light.ttf",
-      weight: "300",
-    },
-    {
-      path: "./font/Handjet-Regular.ttf",
-      weight: "400",
-    },
-    {
-      path: "./font/Handjet-Medium.ttf",
-      weight: "500",
-    },
-    {
-      path: "./font/Handjet-SemiBold.ttf",
-      weight: "600",
-    },
-    {
-      path: "./font/Handjet-Bold.ttf",
-      weight: "700",
-    },
-    {
-      path: "./font/Handjet-ExtraBold.ttf",
-      weight: "800",
-    },
-    {
-      path: "./font/Handjet-Black.ttf",
-      weight: "900",
-    },
-  ],
-  display: "swap",
-  variable: "--my-font",
-});
+import Visualizer from "next-route-visualizer";
+import { env } from "@/env";
+import { cn } from "@/utils/styles";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -57,10 +19,38 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const { username } = os.userInfo();
+
   return (
-    <html lang="en" className={font.variable}>
-      <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+    <html
+      lang="en"
+      className={cn(GeistSans.variable, "h-full overflow-x-hidden")}
+    >
+      <body className="bg-background text-foreground flex h-full flex-col justify-between">
+        <header className="container mx-auto py-6">
+          <nav className="flex justify-between">
+            <Link href="/">
+              <div className="font-light">epic</div>
+              <div className="font-bold">notes</div>
+            </Link>
+            <Link className="underline" href="users/kody/notes">
+              Kody`s Notes
+            </Link>
+          </nav>
+        </header>
+
+        <TRPCReactProvider>
+          <main className="flex-1">{children}</main>
+        </TRPCReactProvider>
+
+        <div className="container mx-auto flex justify-between">
+          <Link href="/">
+            <div className="font-light">epic</div>
+            <div className="font-bold">notes</div>
+          </Link>
+          <p>Built with ♥️ by {username}</p>
+        </div>
+        {env.DEBUG_ROUTE === "true" && <Visualizer />}
       </body>
     </html>
   );
