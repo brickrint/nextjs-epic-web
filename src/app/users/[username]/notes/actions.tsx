@@ -2,29 +2,71 @@
 
 import { db } from "@/utils/db.server";
 import { invariantError } from "@/utils/misc";
-import { revalidatePath } from "next/cache";
 import { redirect, RedirectType } from "next/navigation";
-
-type ActionResult<P = Record<string, unknown>> = { error?: string } & P;
+import { contentMaxLength, titleMaxLength } from "./[id]/edit/page";
 
 type EditState = { noteId: string; username: string };
+
+type ActionErrors = {
+  formErrors: Array<string>;
+  fieldErrors: {
+    title: Array<string>;
+    content: Array<string>;
+  };
+};
+
 export async function edit(
-  { noteId, username }: ActionResult<EditState>,
+  { noteId, username }: EditState,
+  _prevState: unknown,
   formData: FormData,
-): Promise<ActionResult<EditState>> | never {
+) {
   const title = formData.get("title");
   const content = formData.get("content");
 
   invariantError(typeof title === "string", "Title is required");
-
   invariantError(typeof content === "string", "Content is required");
+
+  const errors: ActionErrors = {
+    formErrors: [],
+    fieldErrors: {
+      title: [],
+      content: [],
+    },
+  };
+
+  if (title === "") {
+    errors.fieldErrors.title.push("Title is required");
+  }
+
+  if (title.length > titleMaxLength) {
+    errors.fieldErrors.title.push(
+      `Title must be at most ${titleMaxLength} characters`,
+    );
+  }
+
+  if (content === "") {
+    errors.fieldErrors.content.push("Content is required");
+  }
+
+  if (content.length > contentMaxLength) {
+    errors.fieldErrors.content.push(
+      `Content must be at most ${contentMaxLength} characters`,
+    );
+  }
+
+  const hasErrors =
+    errors.formErrors.length ||
+    Object.values(errors.fieldErrors).some((fieldErrors) => fieldErrors.length);
+
+  if (hasErrors) {
+    return { status: "error", errors } as const;
+  }
 
   db.note.update({
     where: { id: { equals: noteId } },
     data: { title, content },
   });
 
-  revalidatePath(`/users/${username}/notes/${noteId}/edit`);
   redirect(`/users/${username}/notes`);
 }
 

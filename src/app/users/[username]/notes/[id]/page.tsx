@@ -31,7 +31,7 @@ export default function SomeNoteId({ params }: Readonly<PageProps>) {
 
   return (
     <>
-      <h2 className="text-h2 mb-2 pt-12 lg:mb-6">{note.title}</h2>
+      <h2 className="mb-2 pt-12 text-h2 lg:mb-6">{note.title}</h2>
       <div className="overflow-y-auto pb-24">
         <p className="whitespace-break-spaces text-sm md:text-lg">
           {note.content}

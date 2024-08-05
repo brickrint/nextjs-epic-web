@@ -1,12 +1,12 @@
 import "@/styles/globals.css";
 
 import os from "node:os";
-import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import Link from "next/link";
 
 import { TRPCReactProvider } from "@/trpc/react";
-import { cn } from "@/utils/styles";
+
+import { Document } from "./_components/document";
 
 export const metadata: Metadata = {
   title: "Next Epic Notes",
@@ -20,35 +20,30 @@ export default function RootLayout({
   const { username } = os.userInfo();
 
   return (
-    <html
-      lang="en"
-      className={cn(GeistSans.variable, "h-full overflow-x-hidden")}
-    >
-      <body className="bg-background text-foreground flex h-full flex-col justify-between">
-        <header className="container mx-auto py-6">
-          <nav className="flex justify-between">
-            <Link href="/">
-              <div className="font-light">epic</div>
-              <div className="font-bold">notes</div>
-            </Link>
-            <Link className="underline" href="users/kody/notes">
-              Kody`s Notes
-            </Link>
-          </nav>
-        </header>
-
-        <TRPCReactProvider>
-          <main className="flex-1">{children}</main>
-        </TRPCReactProvider>
-
-        <div className="container mx-auto flex justify-between">
+    <Document>
+      <header className="container mx-auto py-6">
+        <nav className="flex justify-between">
           <Link href="/">
             <div className="font-light">epic</div>
             <div className="font-bold">notes</div>
           </Link>
-          <p>Built with ♥️ by {username}</p>
-        </div>
-      </body>
-    </html>
+          <Link className="underline" href="users/kody">
+            Kody
+          </Link>
+        </nav>
+      </header>
+
+      <TRPCReactProvider>
+        <main className="flex-1">{children}</main>
+      </TRPCReactProvider>
+
+      <div className="container mx-auto flex justify-between">
+        <Link href="/">
+          <div className="font-light">epic</div>
+          <div className="font-bold">notes</div>
+        </Link>
+        <p>Built with ♥️ by {username}</p>
+      </div>
+    </Document>
   );
 }

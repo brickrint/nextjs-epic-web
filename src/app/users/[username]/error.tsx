@@ -7,15 +7,14 @@ export default function Error({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
+  error: Error;
   reset: () => void;
 }) {
   const { message } = getErrorMessage(error);
   return (
-    <div className="flex h-full flex-col place-content-center place-items-center gap-y-4 overflow-x-hidden bg-primary px-10 pb-28 pt-12 text-h2 text-primary-foreground">
-      <h2>Something went wrong!</h2>
+    <div className="container mx-auto flex h-full w-full items-center justify-center bg-destructive p-20 text-h2 text-destructive-foreground">
       <p>{message}</p>
-      <Button onClick={reset} variant="secondary">
+      <Button onClick={reset} variant="default">
         Try again
       </Button>
     </div>
