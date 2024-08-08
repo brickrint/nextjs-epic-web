@@ -1,29 +1,12 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-import { db } from "@/utils/db.server";
 import { NavLink } from "../_components/link";
-import { getUser, type PageProps } from "../page";
+import { type PageProps } from "../page";
+import { getNotes } from "../db";
 
-export function getNotes(username: string) {
-  const owner = getUser(username);
-
-  const notes = db.note
-    .findMany({
-      where: {
-        owner: {
-          id: { equals: owner.id },
-        },
-      },
-    })
-    .map(({ id, title }) => ({ id, title }));
-
-  return {
-    owner,
-    notes,
-  };
-}
+const navLinkDefaultClassName =
+  "line-clamp-2 block rounded-l-full py-2 pl-8 pr-6 text-base lg:text-xl";
 
 export default function NotesRoute({
   children,
@@ -32,14 +15,11 @@ export default function NotesRoute({
   const { username } = params;
 
   const { owner, notes } = getNotes(username);
-
   const ownerDisplayName = owner.name ?? owner.username;
-  const navLinkDefaultClassName =
-    "line-clamp-2 block rounded-l-full py-2 pl-8 pr-6 text-base lg:text-xl";
 
   return (
     <main className="container flex h-full min-h-[400px] px-0 pb-12 md:px-8">
-      <div className="bg-muted grid w-full grid-cols-4 pl-2 md:container md:mx-2 md:rounded-3xl md:pr-0">
+      <div className="grid w-full grid-cols-4 bg-muted pl-2 md:container md:mx-2 md:rounded-3xl md:pr-0">
         <div className="relative col-span-1">
           <div className="absolute inset-0 flex flex-col">
             <Link href="." className="pb-4 pl-8 pr-4 pt-12">
@@ -64,7 +44,7 @@ export default function NotesRoute({
           </div>
         </div>
 
-        <div className="bg-accent relative col-span-3 md:rounded-r-3xl">
+        <div className="relative col-span-3 bg-accent md:rounded-r-3xl">
           {children}
         </div>
       </div>

@@ -1,25 +1,13 @@
+import { type Metadata } from "next";
+import Link from "next/link";
+
 import { floatingToolbarClassName } from "@/app/_components/floating-toolbar";
 import { Button } from "@/app/_components/ui/button";
-import { db } from "@/utils/db.server";
-import Link from "next/link";
-import { notFound } from "next/navigation";
 import { SubmitButton } from "@/app/_components/ui/submit-button";
+
 import { remove } from "../actions";
-import { getUser, type PageProps } from "../../page";
-import { type Metadata } from "next";
-
-export function getNote(id: string) {
-  const note = db.note.findFirst({
-    where: {
-      id: { equals: id },
-    },
-  });
-
-  if (!note) {
-    notFound();
-  }
-  return note;
-}
+import { type PageProps } from "../../page";
+import { getNote, getUser } from "../../db";
 
 export default function SomeNoteId({ params }: Readonly<PageProps>) {
   const note = getNote(params.id);
@@ -33,6 +21,19 @@ export default function SomeNoteId({ params }: Readonly<PageProps>) {
     <>
       <h2 className="mb-2 pt-12 text-h2 lg:mb-6">{note.title}</h2>
       <div className="overflow-y-auto pb-24">
+        <ul className="flex flex-wrap gap-5 py-5">
+          {note.images.map((image) => (
+            <li key={image.id}>
+              <a href={`/resources/images/${image.id}`}>
+                {/* <img
+                  src={`/resources/images/${image.id}`}
+                  alt={image.altText ?? ""}
+                  className="h-32 w-32 rounded-lg object-cover"
+                /> */}
+              </a>
+            </li>
+          ))}
+        </ul>
         <p className="whitespace-break-spaces text-sm md:text-lg">
           {note.content}
         </p>

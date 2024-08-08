@@ -1,19 +1,6 @@
-import { db } from "@/utils/db.server";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-
-export function getUser(username: string) {
-  const user = db.user.findFirst({
-    where: { username: { equals: username } },
-  });
-
-  if (!user) {
-    notFound();
-  }
-
-  return user;
-}
+import { getUser } from "./db";
 
 export type PageProps = { params: { username: string; id: string } };
 

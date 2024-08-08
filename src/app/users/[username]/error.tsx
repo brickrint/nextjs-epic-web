@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/app/_components/ui/button";
-import { getErrorMessage } from "@/utils/misc";
+import { getErrorMessage } from "@/utils/misc.server";
 
 export default function Error({
   error,

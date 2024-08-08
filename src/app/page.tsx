@@ -1,6 +1,6 @@
 // import { LatestPost } from "@/app/_components/post";
 // import { getServerAuthSession } from "@/server/auth";
-import { api, HydrateClient } from "@/trpc/server";
+import { HydrateClient } from "@/trpc/server";
 
 export default async function Home() {
   // const hello = await api.post.hello({ text: "from tRPC" });
@@ -11,9 +11,9 @@ export default async function Home() {
   return (
     <HydrateClient>
       <div className="container text-center">
-        <h1 className="text-h1 my-8">NEXT.js Epic Notes</h1>
+        <h1 className="my-8 text-h1">NEXT.js Epic Notes</h1>
         <p>
-          <span className="bg-muted text-body-lg text-muted-foreground inline-flex items-center justify-center gap-2 rounded-xl px-8 py-4">
+          <span className="inline-flex items-center justify-center gap-2 rounded-xl bg-muted px-8 py-4 text-body-lg text-muted-foreground">
             <span>Built with the T3 stack</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
