@@ -1,4 +1,5 @@
 import { type Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 import { floatingToolbarClassName } from "@/app/_components/floating-toolbar";
@@ -22,17 +23,23 @@ export default function SomeNoteId({ params }: Readonly<PageProps>) {
       <h2 className="mb-2 pt-12 text-h2 lg:mb-6">{note.title}</h2>
       <div className="overflow-y-auto pb-24">
         <ul className="flex flex-wrap gap-5 py-5">
-          {note.images.map((image) => (
-            <li key={image.id}>
-              <a href={`/resources/images/${image.id}`}>
-                {/* <img
-                  src={`/resources/images/${image.id}`}
-                  alt={image.altText ?? ""}
-                  className="h-32 w-32 rounded-lg object-cover"
-                /> */}
-              </a>
-            </li>
-          ))}
+          {note.images.map((image) => {
+            const src = `/api/images/${image.id}`;
+            return (
+              <li key={image.id}>
+                <a href={src}>
+                  <Image
+                    src={src}
+                    alt={image.altText ?? ""}
+                    width={200}
+                    height={200}
+                    quality={100}
+                    className="h-32 w-32 rounded-lg object-cover"
+                  />
+                </a>
+              </li>
+            );
+          })}
         </ul>
         <p className="whitespace-break-spaces text-sm md:text-lg">
           {note.content}

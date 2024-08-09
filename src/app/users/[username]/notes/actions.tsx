@@ -15,6 +15,8 @@ export async function edit(
   _: unknown,
   formData: FormData,
 ) {
+  invariantError(noteId || username, "Invalid note ID or username");
+
   const submission = parseWithZod(formData, {
     schema: NoteEditorSchema,
   });
@@ -23,25 +25,16 @@ export async function edit(
     return submission.reply();
   }
 
-  const { title, content } = submission.value;
+  const { title, content, images } = submission.value;
 
   await updateNote({
     id: noteId,
     title,
     content,
-    images: [
-      {
-        // @ts-expect-error 🦺 we'll fix this in the next exercise
-        id: formData.get("imageId"),
-        // @ts-expect-error 🦺 we'll fix this in the next exercise
-        file: formData.get("file"),
-        // @ts-expect-error 🦺 we'll fix this in the next exercise
-        altText: formData.get("altText"),
-      },
-    ],
+    images,
   });
 
-  redirect(`/users/${username}/notes`);
+  redirect(`/users/${username}/notes/${noteId}`);
 }
 
 export async function remove(

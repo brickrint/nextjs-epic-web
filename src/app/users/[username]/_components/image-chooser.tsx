@@ -5,41 +5,51 @@ import { Label } from "@/app/_components/ui/label";
 import { Textarea } from "@/app/_components/ui/textarea";
 import { useHydrated } from "@/utils/misc.client";
 import { cn } from "@/utils/styles";
+import {
+  type FieldMetadata,
+  getFieldsetProps,
+  getInputProps,
+  getTextareaProps,
+} from "@conform-to/react";
+import {
+  type ImageFieldsetSchema,
+  type NoteEditorSchema,
+} from "../notes/schema";
 
 export function ImageChooser({
-  image,
+  config,
 }: {
-  image?: { id: string; altText?: string | null };
+  config: FieldMetadata<ImageFieldsetSchema, NoteEditorSchema>;
 }) {
-  const existingImage = Boolean(image);
-  const [previewImage, setPreviewImage] = useState<string | null>(
-    image ? `/api/images/${image.id}` : null,
-  );
-  const [altText, setAltText] = useState(image?.altText ?? "");
-
   const isHydrated = useHydrated();
 
+  const { id, altText, file } = config.getFieldset();
+
+  const existingImage = Boolean(id);
+  const [previewImage, setPreviewImage] = useState<string | null>(
+    id.initialValue ? `/api/images/${id.initialValue}` : null,
+  );
+
   return (
-    <fieldset>
+    <fieldset {...getFieldsetProps(config)}>
       <div className="flex gap-3">
         <div className="w-32">
           <div className="relative h-32 w-32">
             <label
-              htmlFor="image-input"
+              htmlFor={file.id}
               className={cn("group absolute h-32 w-32 rounded-lg", {
                 "bg-accent opacity-40 focus-within:opacity-100 hover:opacity-100":
-                  !previewImage && isHydrated,
-                "cursor-pointer focus-within:ring-4":
-                  !existingImage && isHydrated,
+                  !previewImage,
+                "cursor-pointer focus-within:ring-4": !existingImage,
               })}
             >
               {previewImage && isHydrated ? (
                 <div className="relative">
                   <Image
                     src={previewImage}
-                    alt={altText ?? ""}
-                    width={32}
-                    height={32}
+                    alt={altText.value ?? ""}
+                    width={200}
+                    height={200}
                     quality={100}
                     className="h-32 w-32 rounded-lg object-cover"
                   />
@@ -55,10 +65,16 @@ export function ImageChooser({
                 </div>
               )}
               {existingImage ? (
-                <input name="imageId" type="hidden" value={image?.id} />
+                <input
+                  {...getInputProps(id, {
+                    type: "hidden",
+                  })}
+                />
               ) : null}
               <input
-                id="image-input"
+                {...getInputProps(file, {
+                  type: "file",
+                })}
                 aria-label="Image"
                 className="absolute left-0 top-0 z-0 h-32 w-32 cursor-pointer opacity-0"
                 onChange={(event) => {
@@ -74,23 +90,43 @@ export function ImageChooser({
                     setPreviewImage(null);
                   }
                 }}
-                name="file"
-                type="file"
                 accept="image/*"
               />
             </label>
           </div>
+          <div className="min-h-[32px] px-4 pb-3 pt-1">
+            <ErrorList id={file.errorId} errors={file.errors} />
+          </div>
         </div>
         <div className="flex-1">
-          <Label htmlFor="alt-text">Alt Text</Label>
-          <Textarea
-            id="alt-text"
-            name="altText"
-            defaultValue={altText}
-            onChange={(e) => setAltText(e.currentTarget.value)}
-          />
+          <Label htmlFor={altText.id}>Alt Text</Label>
+          <Textarea {...getTextareaProps(altText)} />
+          <div className="min-h-[32px] px-4 pb-3 pt-1">
+            <ErrorList id={altText.errorId} errors={altText.errors} />
+          </div>
         </div>
+      </div>
+      <div className="min-h-[32px] px-4 pb-3 pt-1">
+        <ErrorList id={config.errorId} errors={config.errors} />
       </div>
     </fieldset>
   );
+}
+
+export function ErrorList({
+  id,
+  errors,
+}: {
+  id?: string;
+  errors?: Array<string> | null;
+}) {
+  return errors?.length ? (
+    <ul id={id} className="flex flex-col gap-1">
+      {errors.map((error, i) => (
+        <li key={i} className="text-[10px] text-foreground-destructive">
+          {error}
+        </li>
+      ))}
+    </ul>
+  ) : null;
 }

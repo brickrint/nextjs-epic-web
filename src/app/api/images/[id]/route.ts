@@ -13,7 +13,6 @@ export async function GET(
   const image = db.image.findFirst({
     where: { id: { equals: params.id } },
   });
-  console.log("image", image);
   if (!image) return invariantResponse("Image not found", { status: 404 });
 
   const { filepath, contentType } = image;

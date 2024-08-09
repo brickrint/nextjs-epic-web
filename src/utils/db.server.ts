@@ -3,10 +3,10 @@
  * for the purposes of our workshop. The data modeling workshop will cover
  * the proper database.
  */
-import { randomBytes } from "crypto";
-import fs from "fs";
-import os from "os";
-import path from "path";
+import { randomBytes } from "node:crypto";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { factory, manyOf, nullable, oneOf, primaryKey } from "@mswjs/data";
 import { remember } from "@epic-web/remember";
 
@@ -150,7 +150,6 @@ export async function updateNote({
     altText?: string;
   } | null>;
 }) {
-  console.log("os.tmpdir()", os.tmpdir());
   const noteImagePromises =
     images?.map(async (image) => {
       if (!image) return null;

@@ -1,8 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-import { getNote } from "../../../db";
 import { EditForm } from "./edit-form";
+import { getNote } from "../../../db";
 
 export default function NoteEdit({
   params,

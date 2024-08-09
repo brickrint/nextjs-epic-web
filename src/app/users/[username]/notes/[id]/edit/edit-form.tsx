@@ -3,6 +3,7 @@ import { useFormState } from "react-dom";
 
 import { parseWithZod } from "@conform-to/zod";
 import {
+  FormProvider,
   getFormProps,
   getInputProps,
   getTextareaProps,
@@ -15,7 +16,7 @@ import { Input } from "@/app/_components/ui/input";
 import { Label } from "@/app/_components/ui/label";
 
 import { StatusButton } from "../../../_components/status-button";
-import { ImageChooser } from "../../../_components/image-chooser";
+import { ErrorList, ImageChooser } from "../../../_components/image-chooser";
 import { edit } from "../../actions";
 import { NoteEditorSchema } from "../../schema";
 import { type getNote } from "../../../db";
@@ -35,23 +36,23 @@ export function EditForm({
   });
   const [actionState, updateNote] = useFormState(editAction, undefined);
 
-  const [form, fields] = useForm({
+  const [form, fields] = useForm<NoteEditorSchema>({
     id: "note-edit",
     lastResult: actionState,
-    // Reuse the validation logic on the client
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: NoteEditorSchema });
     },
     defaultValue: {
       title: note.title,
       content: note.content,
+      images: note.images,
     },
   });
 
-  console.log("note", note);
+  const imageList = fields.images.getFieldList();
 
   return (
-    <>
+    <FormProvider context={form.context}>
       <form
         action={updateNote}
         {...getFormProps(form)}
@@ -59,7 +60,6 @@ export function EditForm({
       >
         <div className="flex flex-col gap-1">
           <div>
-            {/* 🦉 NOTE: this is not an accessible label, we'll get to that in the accessibility exercises */}
             <Label htmlFor={fields.title.id}>Title</Label>
             <Input {...getInputProps(fields.title, { type: "text" })} />
             <div className="min-h-[32px] px-4 pb-3 pt-1">
@@ -70,7 +70,6 @@ export function EditForm({
             </div>
           </div>
           <div>
-            {/* 🦉 NOTE: this is not an accessible label, we'll get to that in the accessibility exercises */}
             <Label htmlFor={fields.content.id}>Content</Label>
             <Textarea {...getTextareaProps(fields.content)} />
             <div className="min-h-[32px] px-4 pb-3 pt-1">
@@ -82,13 +81,47 @@ export function EditForm({
           </div>
           <div>
             <Label>Image</Label>
-            <ImageChooser image={note.images?.[0]} />
+            <ul className="flex flex-col gap-4">
+              {imageList.map((image, index) => (
+                <li
+                  key={image.key}
+                  className="relative border-b-2 border-muted-foreground"
+                >
+                  <Button
+                    variant="ghost"
+                    className="absolute right-0 top-0 h-auto pr-0 pt-0 text-foreground-destructive"
+                    {...form.remove.getButtonProps({
+                      name: fields.images.name,
+                      index,
+                    })}
+                  >
+                    <span aria-hidden>❌</span>{" "}
+                    <span className="sr-only">Remove image {index + 1}</span>
+                  </Button>
+                  <ImageChooser config={image} />
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
+        <Button
+          className="mt-3"
+          {...form.insert.getButtonProps({
+            name: fields.images.name,
+            defaultValue: {},
+          })}
+        >
+          <span aria-hidden>➕ Image</span>{" "}
+          <span className="sr-only">Add image</span>
+        </Button>
         <ErrorList id={form.errorId} errors={form.errors} />
       </form>
       <div className={floatingToolbarClassName}>
-        <Button form={form.id} variant="destructive" type="reset">
+        <Button
+          {...form.reset.getButtonProps()}
+          variant="destructive"
+          type="reset"
+        >
           Reset
         </Button>
 
@@ -96,24 +129,6 @@ export function EditForm({
           Submit
         </StatusButton>
       </div>
-    </>
+    </FormProvider>
   );
-}
-
-function ErrorList({
-  id,
-  errors,
-}: {
-  id?: string;
-  errors?: Array<string> | null;
-}) {
-  return errors?.length ? (
-    <ul id={id} className="flex flex-col gap-1">
-      {errors.map((error, i) => (
-        <li key={i} className="text-[10px] text-foreground-destructive">
-          {error}
-        </li>
-      ))}
-    </ul>
-  ) : null;
 }
