@@ -27,8 +27,8 @@ export default function RootLayout({
             <div className="font-light">epic</div>
             <div className="font-bold">notes</div>
           </Link>
-          <Link className="underline" href="users/kody">
-            Kody
+          <Link className="underline" href="/signup">
+            Signup
           </Link>
         </nav>
       </header>
