@@ -1,5 +1,5 @@
 const buildEslintCommand = `yarn lint:fix`;
 
-module.exports = {
+export default {
   "*.{js,jsx,ts,tsx}": [buildEslintCommand],
 };
