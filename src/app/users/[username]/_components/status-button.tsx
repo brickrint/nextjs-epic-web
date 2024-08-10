@@ -1,10 +1,11 @@
 "use client";
 
-import {
-  type StatusButtonProps,
-  StatusButton as SharedStatusButton,
-} from "@/app/_components/ui/status-button";
 import { useFormStatus } from "react-dom";
+
+import {
+  StatusButton as SharedStatusButton,
+  type StatusButtonProps,
+} from "@/app/_components/ui/status-button";
 
 export function StatusButton(
   props: Omit<StatusButtonProps, "status" | "disabled">,

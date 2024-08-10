@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { CheckIcon, Cross1Icon, UpdateIcon } from "@radix-ui/react-icons";
 import * as React from "react";
 import { useSpinDelay } from "spin-delay";
+
 import { cn } from "@/utils/styles";
-import { UpdateIcon, CheckIcon, Cross1Icon } from "@radix-ui/react-icons";
+
 import { Button, type ButtonProps } from "./button";
 import {
   Tooltip,

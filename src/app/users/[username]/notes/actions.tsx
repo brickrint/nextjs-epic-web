@@ -1,12 +1,13 @@
 "use server";
 
-import { invariantError } from "@/utils/misc.server";
-import { redirect, RedirectType } from "next/navigation";
 import { parseWithZod } from "@conform-to/zod";
+import { RedirectType, redirect } from "next/navigation";
 
 import { updateNote } from "@/utils/db.server";
-import { NoteEditorSchema } from "./schema";
+import { invariantError } from "@/utils/misc.server";
+
 import { deleteNote } from "../db";
+import { NoteEditorSchema } from "./schema";
 
 type EditState = { noteId: string; username: string };
 

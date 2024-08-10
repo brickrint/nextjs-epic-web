@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import { Document } from "./_components/document";
 
 export default function GlobalError() {

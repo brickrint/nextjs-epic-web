@@ -1,10 +1,8 @@
 import "@/styles/globals.css";
-
-import os from "node:os";
+import { TRPCReactProvider } from "@/trpc/react";
 import { type Metadata } from "next";
 import Link from "next/link";
-
-import { TRPCReactProvider } from "@/trpc/react";
+import os from "node:os";
 
 import { Document } from "./_components/document";
 

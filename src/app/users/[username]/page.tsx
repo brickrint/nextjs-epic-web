@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+
 import { getUser } from "./db";
 
 export type PageProps = { params: { username: string; id: string } };

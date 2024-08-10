@@ -1,9 +1,9 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { NavLink } from "../_components/link";
-import { type PageProps } from "../page";
 import { getNotes } from "../db";
+import { type PageProps } from "../page";
 
 const navLinkDefaultClassName =
   "line-clamp-2 block rounded-l-full py-2 pl-8 pr-6 text-base lg:text-xl";

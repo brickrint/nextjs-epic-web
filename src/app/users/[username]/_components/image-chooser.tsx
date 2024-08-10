@@ -1,16 +1,16 @@
-import { useState } from "react";
-import Image from "next/image";
-
-import { Label } from "@/app/_components/ui/label";
-import { Textarea } from "@/app/_components/ui/textarea";
-import { useHydrated } from "@/utils/misc.client";
-import { cn } from "@/utils/styles";
 import {
   type FieldMetadata,
   getFieldsetProps,
   getInputProps,
   getTextareaProps,
 } from "@conform-to/react";
+import Image from "next/image";
+import { useState } from "react";
+
+import { Label } from "@/app/_components/ui/label";
+import { Textarea } from "@/app/_components/ui/textarea";
+import { cn } from "@/utils/styles";
+
 import {
   type ImageFieldsetSchema,
   type NoteEditorSchema,
@@ -21,8 +21,6 @@ export function ImageChooser({
 }: {
   config: FieldMetadata<ImageFieldsetSchema, NoteEditorSchema>;
 }) {
-  const isHydrated = useHydrated();
-
   const { id, altText, file } = config.getFieldset();
 
   const existingImage = Boolean(id);
@@ -43,7 +41,7 @@ export function ImageChooser({
                 "cursor-pointer focus-within:ring-4": !existingImage,
               })}
             >
-              {previewImage && isHydrated ? (
+              {previewImage ? (
                 <div className="relative">
                   <Image
                     src={previewImage}
@@ -69,12 +67,14 @@ export function ImageChooser({
                   {...getInputProps(id, {
                     type: "hidden",
                   })}
+                  key={id.id}
                 />
               ) : null}
               <input
                 {...getInputProps(file, {
                   type: "file",
                 })}
+                key={file.id}
                 aria-label="Image"
                 className="absolute left-0 top-0 z-0 h-32 w-32 cursor-pointer opacity-0"
                 onChange={(event) => {
@@ -100,7 +100,7 @@ export function ImageChooser({
         </div>
         <div className="flex-1">
           <Label htmlFor={altText.id}>Alt Text</Label>
-          <Textarea {...getTextareaProps(altText)} />
+          <Textarea {...getTextareaProps(altText)} key={altText.id} />
           <div className="min-h-[32px] px-4 pb-3 pt-1">
             <ErrorList id={altText.errorId} errors={altText.errors} />
           </div>

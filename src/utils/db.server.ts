@@ -3,12 +3,12 @@
  * for the purposes of our workshop. The data modeling workshop will cover
  * the proper database.
  */
+import { remember } from "@epic-web/remember";
+import { factory, manyOf, nullable, oneOf, primaryKey } from "@mswjs/data";
 import { randomBytes } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { factory, manyOf, nullable, oneOf, primaryKey } from "@mswjs/data";
-import { remember } from "@epic-web/remember";
 
 const getId = () => randomBytes(16).toString("hex").slice(0, 8);
 

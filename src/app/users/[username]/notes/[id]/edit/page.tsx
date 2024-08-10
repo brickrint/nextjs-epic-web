@@ -1,5 +1,5 @@
-import { EditForm } from "./edit-form";
 import { getNote } from "../../../db";
+import { EditForm } from "./edit-form";
 
 export default function NoteEdit({
   params,

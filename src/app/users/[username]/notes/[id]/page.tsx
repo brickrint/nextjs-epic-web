@@ -6,9 +6,9 @@ import { floatingToolbarClassName } from "@/app/_components/floating-toolbar";
 import { Button } from "@/app/_components/ui/button";
 import { SubmitButton } from "@/app/_components/ui/submit-button";
 
-import { remove } from "../actions";
-import { type PageProps } from "../../page";
 import { getNote, getUser } from "../../db";
+import { type PageProps } from "../../page";
+import { remove } from "../actions";
 
 export default function SomeNoteId({ params }: Readonly<PageProps>) {
   const note = getNote(params.id);

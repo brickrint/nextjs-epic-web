@@ -1,5 +1,7 @@
-import { db } from "@/utils/db.server";
 import { notFound } from "next/navigation";
+import "server-only";
+
+import { db } from "@/utils/db.server";
 
 export type Note = {
   id: string;

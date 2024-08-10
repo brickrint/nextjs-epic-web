@@ -1,10 +1,10 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 import { Button } from "@/app/_components/ui/button";
 import { Input } from "@/app/_components/ui/input";
 import { Label } from "@/app/_components/ui/label";
 
-export default function SignupLayout() {
+export default function SignupPage() {
   return (
     <div className="container flex min-h-full flex-col justify-center pb-32 pt-20">
       <div className="mx-auto w-full max-w-lg">
@@ -16,6 +16,7 @@ export default function SignupLayout() {
         </div>
         <form
           method="POST"
+          action="/api/images/00000"
           className="mx-auto flex min-w-[368px] max-w-sm flex-col gap-4"
         >
           <div style={{ display: "none" }} aria-hidden>

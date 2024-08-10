@@ -1,9 +1,10 @@
-import { db } from "@/utils/db.server";
+import { createReadableStreamFromReadable } from "@remix-run/node";
+import { type NextRequest, NextResponse } from "next/server";
 import fs from "node:fs";
 import { PassThrough } from "node:stream";
+
+import { db } from "@/utils/db.server";
 import { invariantResponse } from "@/utils/misc.server";
-import { type NextRequest, NextResponse } from "next/server";
-import { createReadableStreamFromReadable } from "@remix-run/node";
 
 export async function GET(
   request: NextRequest,
@@ -32,4 +33,14 @@ export async function GET(
       "cache-control": "public, max-age=31536000, immutable",
     },
   });
+}
+
+export async function POST(
+  request: NextRequest,
+  params: { params: { id: string } },
+) {
+  console.log("request", request);
+  console.log("params", params);
+
+  return NextResponse.redirect(request.headers.get("referer")!);
 }
