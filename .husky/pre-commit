@@ -1,1 +1,1 @@
-yarn validate:all
+npx lint-staged
