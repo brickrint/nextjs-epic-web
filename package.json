@@ -8,13 +8,13 @@
     "build": "next build",
     "start": "next start",
     "postinstall": "prisma generate && husky",
-    "lint": "next lint",
-    "lint:fix": "yarn run lint --fix && yarn run format:fix",
-    "format:fix": "prettier --write .",
     "db:generate": "prisma migrate dev",
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "lint": "next lint",
+    "format:fix": "prettier --write .",
+    "validate:all": "yarn run lint --fix && yarn run format:fix"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^1.6.0",
