@@ -4,6 +4,7 @@ import { parseWithZod } from "@conform-to/zod";
 import { RedirectType, redirect } from "next/navigation";
 
 import { updateNote } from "@/utils/db.server";
+import { checkHoneypot } from "@/utils/honeypot.server";
 import { invariantError } from "@/utils/misc.server";
 
 import { deleteNote } from "../db";
@@ -17,6 +18,8 @@ export async function edit(
   formData: FormData,
 ) {
   invariantError(noteId || username, "Invalid note ID or username");
+
+  checkHoneypot(formData);
 
   const submission = parseWithZod(formData, {
     schema: NoteEditorSchema,

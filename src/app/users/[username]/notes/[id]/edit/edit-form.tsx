@@ -8,6 +8,7 @@ import {
 } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { useFormState } from "react-dom";
+import { HoneypotInputs } from "remix-utils/honeypot/react";
 
 import { floatingToolbarClassName } from "@/app/_components/floating-toolbar";
 import { Button } from "@/app/_components/ui/button";
@@ -58,6 +59,7 @@ export function EditForm({
         {...getFormProps(form)}
         className="flex h-full flex-col gap-y-4 overflow-x-hidden px-10 pb-28 pt-12"
       >
+        <HoneypotInputs label="Please leave this field blank" />
         <button type="submit" className="hidden" />
         <div className="flex flex-col gap-1">
           <div>

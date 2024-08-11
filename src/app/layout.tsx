@@ -5,6 +5,7 @@ import Link from "next/link";
 import os from "node:os";
 
 import { Document } from "./_components/document";
+import { Provider } from "./_components/provider";
 
 export const metadata: Metadata = {
   title: "Next Epic Notes",
@@ -32,7 +33,9 @@ export default function RootLayout({
       </header>
 
       <TRPCReactProvider>
-        <main className="flex-1">{children}</main>
+        <Provider>
+          <main className="flex-1">{children}</main>
+        </Provider>
       </TRPCReactProvider>
 
       <div className="container mx-auto flex justify-between">

@@ -1,6 +1,10 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
+const NODE_ENV = z
+  .enum(["development", "test", "production"])
+  .default("development");
+
 export const env = createEnv({
   /**
    * Specify your server-side environment variables schema here. This way you can ensure the app
@@ -8,9 +12,7 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
-    NODE_ENV: z
-      .enum(["development", "test", "production"])
-      .default("development"),
+    NODE_ENV,
     NEXTAUTH_SECRET:
       process.env.NODE_ENV === "production"
         ? z.string()
@@ -33,6 +35,8 @@ export const env = createEnv({
    */
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    NEXT_PUBLIC_HONEYPOT_ENCRYPTION_SEED: z.string(),
+    NEXT_PUBLIC_NODE_ENV: NODE_ENV,
   },
 
   /**
@@ -42,10 +46,13 @@ export const env = createEnv({
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
+    NEXT_PUBLIC_NODE_ENV: process.env.NODE_ENV,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
+    NEXT_PUBLIC_HONEYPOT_ENCRYPTION_SEED:
+      process.env.NEXT_PUBLIC_HONEYPOT_ENCRYPTION_SEED,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

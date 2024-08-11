@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 
-import { Button } from "@/app/_components/ui/button";
-import { Input } from "@/app/_components/ui/input";
-import { Label } from "@/app/_components/ui/label";
+import { Form } from "./_components/form";
 
 export default function SignupPage() {
   return (
@@ -14,23 +12,7 @@ export default function SignupPage() {
             Please enter your details.
           </p>
         </div>
-        <form
-          method="POST"
-          action="/api/images/00000"
-          className="mx-auto flex min-w-[368px] max-w-sm flex-col gap-4"
-        >
-          <div style={{ display: "none" }} aria-hidden>
-            <label htmlFor="name-input">Please leave this field blank</label>
-            <input id="name-input" name="name" type="text" />
-          </div>
-          <div>
-            <Label htmlFor="email-input">Email</Label>
-            <Input autoFocus id="email-input" name="email" type="email" />
-          </div>
-          <Button className="w-full" type="submit">
-            Create an account
-          </Button>
-        </form>
+        <Form />
       </div>
     </div>
   );
