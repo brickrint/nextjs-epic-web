@@ -1,14 +1,15 @@
 "use client";
 
 import { HoneypotProvider } from "remix-utils/honeypot/react";
-
-import { honeypot } from "@/utils/honeypot.server";
+import { type HoneypotInputProps } from "remix-utils/honeypot/server";
 
 export function Provider({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
-  const honeypotInputProps = honeypot.getInputProps();
-
+  honeypotInputProps,
+}: Readonly<{
+  children: React.ReactNode;
+  honeypotInputProps: HoneypotInputProps;
+}>) {
   return (
     <HoneypotProvider {...honeypotInputProps}>{children}</HoneypotProvider>
   );

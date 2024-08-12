@@ -4,6 +4,8 @@ import { type Metadata } from "next";
 import Link from "next/link";
 import os from "node:os";
 
+import { honeypot } from "@/utils/honeypot.server";
+
 import { Document } from "./_components/document";
 import { Provider } from "./_components/provider";
 
@@ -33,7 +35,7 @@ export default function RootLayout({
       </header>
 
       <TRPCReactProvider>
-        <Provider>
+        <Provider honeypotInputProps={honeypot.getInputProps()}>
           <main className="flex-1">{children}</main>
         </Provider>
       </TRPCReactProvider>

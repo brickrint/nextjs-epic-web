@@ -5,6 +5,7 @@ const config = {
     "@trivago/prettier-plugin-sort-imports",
   ],
   importOrder: [
+    'import "server-only"',
     "<THIRD_PARTY_MODULES>",
     "^@/env$",
     "^@/(app|utils)/(.*)$",
