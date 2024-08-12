@@ -1,9 +1,11 @@
 import "@/styles/globals.css";
 import { TRPCReactProvider } from "@/trpc/react";
 import { type Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import os from "node:os";
 
+import { getCsrfToken } from "@/utils/csrf.server";
 import { honeypot } from "@/utils/honeypot.server";
 
 import { Document } from "./_components/document";
@@ -20,6 +22,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const { username } = os.userInfo();
 
+  const headersList = headers();
+  const csrfToken = getCsrfToken(headersList);
+
   return (
     <Document>
       <header className="container mx-auto py-6">
@@ -35,7 +40,10 @@ export default function RootLayout({
       </header>
 
       <TRPCReactProvider>
-        <Provider honeypotInputProps={honeypot.getInputProps()}>
+        <Provider
+          honeypotInputProps={honeypot.getInputProps()}
+          csrfToken={csrfToken}
+        >
           <main className="flex-1">{children}</main>
         </Provider>
       </TRPCReactProvider>

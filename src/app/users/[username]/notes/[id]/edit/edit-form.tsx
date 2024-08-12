@@ -15,6 +15,7 @@ import { Button } from "@/app/_components/ui/button";
 import { Input } from "@/app/_components/ui/input";
 import { Label } from "@/app/_components/ui/label";
 import { Textarea } from "@/app/_components/ui/textarea";
+import { AuthenticityTokenInput } from "@/utils/csrf.client";
 
 import { ErrorList, ImageChooser } from "../../../_components/image-chooser";
 import { StatusButton } from "../../../_components/status-button";
@@ -59,6 +60,7 @@ export function EditForm({
         {...getFormProps(form)}
         className="flex h-full flex-col gap-y-4 overflow-x-hidden px-10 pb-28 pt-12"
       >
+        <AuthenticityTokenInput />
         <HoneypotInputs label="Please leave this field blank" />
         <button type="submit" className="hidden" />
         <div className="flex flex-col gap-1">

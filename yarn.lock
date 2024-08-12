@@ -272,6 +272,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@edge-csrf/nextjs@npm:^2.3.0-rc1":
+  version: 2.3.0-rc1
+  resolution: "@edge-csrf/nextjs@npm:2.3.0-rc1"
+  peerDependencies:
+    next: ^13.0.0 || ^14.0.0
+  checksum: 10c0/118548c85ba7d970efbe3a2134be2fcbe8aa11e61f89427ae7c6eb3176b23c6a8335f8dffc8863c1fbbccee2f1060d7f080ab015e1c2e053143a3ed57673bc3d
+  languageName: node
+  linkType: hard
+
 "@epic-web/remember@npm:^1.1.0":
   version: 1.1.0
   resolution: "@epic-web/remember@npm:1.1.0"
@@ -2595,7 +2604,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"client-only@npm:0.0.1":
+"client-only@npm:0.0.1, client-only@npm:^0.0.1":
   version: 0.0.1
   resolution: "client-only@npm:0.0.1"
   checksum: 10c0/9d6cfd0c19e1c96a434605added99dff48482152af791ec4172fb912a71cff9027ff174efd8cdb2160cc7f377543e0537ffc462d4f279bc4701de3f2a3c4b358
@@ -4988,6 +4997,7 @@ __metadata:
     "@auth/prisma-adapter": "npm:^1.6.0"
     "@conform-to/react": "npm:^1.1.5"
     "@conform-to/zod": "npm:^1.1.5"
+    "@edge-csrf/nextjs": "npm:^2.3.0-rc1"
     "@epic-web/remember": "npm:^1.1.0"
     "@mswjs/data": "npm:^0.16.1"
     "@prisma/client": "npm:^5.14.0"
@@ -5012,6 +5022,7 @@ __metadata:
     "@typescript-eslint/parser": "npm:^7.1.1"
     autoprefixer: "npm:^10.4.19"
     class-variance-authority: "npm:^0.7.0"
+    client-only: "npm:^0.0.1"
     clsx: "npm:^2.1.1"
     crypto-js: "npm:^4.2.0"
     eslint: "npm:^8.57.0"

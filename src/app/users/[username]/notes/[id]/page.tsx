@@ -5,6 +5,7 @@ import Link from "next/link";
 import { floatingToolbarClassName } from "@/app/_components/floating-toolbar";
 import { Button } from "@/app/_components/ui/button";
 import { SubmitButton } from "@/app/_components/ui/submit-button";
+import { AuthenticityTokenInput } from "@/utils/csrf.client";
 
 import { getNote, getUser } from "../../db";
 import { type PageProps } from "../../page";
@@ -46,6 +47,7 @@ export default function SomeNoteId({ params }: Readonly<PageProps>) {
         </p>
         <div className={floatingToolbarClassName}>
           <form action={deleteNote}>
+            <AuthenticityTokenInput />
             <SubmitButton
               type="submit"
               variant="destructive"
