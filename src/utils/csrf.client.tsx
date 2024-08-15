@@ -29,5 +29,5 @@ function useAuthenticityToken() {
 export function AuthenticityTokenInput() {
   const token = useAuthenticityToken();
 
-  return <input type="hidden" value={token} />;
+  return <input type="hidden" name="csrf_token" value={token} />;
 }
