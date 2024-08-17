@@ -6,6 +6,7 @@ import { floatingToolbarClassName } from "@/app/_components/floating-toolbar";
 import { Button } from "@/app/_components/ui/button";
 import { SubmitButton } from "@/app/_components/ui/submit-button";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
+import { getNoteImgSrc } from "@/utils/misc.server";
 
 import { getNote, getUser } from "../../db";
 import { type PageProps } from "../../page";
@@ -25,7 +26,7 @@ export default function SomeNoteId({ params }: Readonly<PageProps>) {
       <div className="overflow-y-auto pb-24">
         <ul className="flex flex-wrap gap-5 py-5">
           {note.images.map((image) => {
-            const src = `/api/images/${image.id}`;
+            const src = getNoteImgSrc(image.id);
             return (
               <li key={image.id}>
                 <a href={src}>

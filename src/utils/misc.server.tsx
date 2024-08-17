@@ -79,3 +79,11 @@ export function invariantResponse(
     { status: 400, ...responseInit },
   );
 }
+
+export function getUserImgSrc(imageId?: string | null) {
+  return imageId ? `/api/images/${imageId}` : "/assets/user.png";
+}
+
+export function getNoteImgSrc(imageId: string) {
+  return `/api/images/${imageId}`;
+}

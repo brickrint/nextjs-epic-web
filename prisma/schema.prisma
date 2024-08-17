@@ -56,13 +56,31 @@ datasource db {
 
 model User {
     id            String    @id @default(cuid())
+    email         String   @unique
+    username      String   @unique
     name          String?
-    // email         String?   @unique
+
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
     // emailVerified DateTime?
     // image         String?
     // accounts      Account[]
     // sessions      Session[]
     // posts         Post[]
+    notes         Note[]
+}
+
+model Note {
+    id      String @id @default(cuid())
+
+    title String
+    content String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    
+    owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    ownerId String
 }
 
 // model VerificationToken {

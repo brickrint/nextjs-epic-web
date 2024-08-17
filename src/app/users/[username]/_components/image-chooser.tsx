@@ -7,8 +7,10 @@ import {
 import Image from "next/image";
 import { useState } from "react";
 
+import { ErrorList } from "@/app/_components/forms";
 import { Label } from "@/app/_components/ui/label";
 import { Textarea } from "@/app/_components/ui/textarea";
+import { getNoteImgSrc } from "@/utils/misc.server";
 import { cn } from "@/utils/styles";
 
 import {
@@ -25,7 +27,7 @@ export function ImageChooser({
 
   const existingImage = Boolean(id);
   const [previewImage, setPreviewImage] = useState<string | null>(
-    id.initialValue ? `/api/images/${id.initialValue}` : null,
+    id.initialValue ? getNoteImgSrc(id.initialValue) : null,
   );
 
   return (
@@ -111,22 +113,4 @@ export function ImageChooser({
       </div>
     </fieldset>
   );
-}
-
-export function ErrorList({
-  id,
-  errors,
-}: {
-  id?: string;
-  errors?: Array<string> | null;
-}) {
-  return errors?.length ? (
-    <ul id={id} className="flex flex-col gap-1">
-      {errors.map((error, i) => (
-        <li key={i} className="text-[10px] text-foreground-destructive">
-          {error}
-        </li>
-      ))}
-    </ul>
-  ) : null;
 }

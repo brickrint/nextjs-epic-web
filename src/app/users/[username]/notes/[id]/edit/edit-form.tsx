@@ -11,14 +11,13 @@ import { useFormState } from "react-dom";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 
 import { floatingToolbarClassName } from "@/app/_components/floating-toolbar";
+import { ErrorList, Field, TextareaField } from "@/app/_components/forms";
 import { Button } from "@/app/_components/ui/button";
-import { Input } from "@/app/_components/ui/input";
 import { Label } from "@/app/_components/ui/label";
-import { Textarea } from "@/app/_components/ui/textarea";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
 
-import { ErrorList, ImageChooser } from "../../../_components/image-chooser";
-import { StatusButton } from "../../../_components/status-button";
+import { StatusButton } from "../../../../../_components/ui/status-button";
+import { ImageChooser } from "../../../_components/image-chooser";
 import { type getNote } from "../../../db";
 import { edit } from "../../actions";
 import { NoteEditorSchema } from "../../schema";
@@ -64,29 +63,23 @@ export function EditForm({
         <HoneypotInputs label="Please leave this field blank" />
         <button type="submit" className="hidden" />
         <div className="flex flex-col gap-1">
-          <div>
-            <Label htmlFor={fields.title.id}>Title</Label>
-            <Input
-              {...getInputProps(fields.title, { type: "text" })}
-              autoFocus
-            />
-            <div className="min-h-[32px] px-4 pb-3 pt-1">
-              <ErrorList
-                id={fields.title.errorId}
-                errors={fields.title.errors}
-              />
-            </div>
-          </div>
-          <div>
-            <Label htmlFor={fields.content.id}>Content</Label>
-            <Textarea {...getTextareaProps(fields.content)} />
-            <div className="min-h-[32px] px-4 pb-3 pt-1">
-              <ErrorList
-                id={fields.content.errorId}
-                errors={fields.content.errors}
-              />
-            </div>
-          </div>
+          <Field
+            labelProps={{
+              children: "Title",
+            }}
+            inputProps={{
+              ...getInputProps(fields.title, { type: "text" }),
+              autoFocus: true,
+            }}
+            errors={fields.title.errors}
+          />
+          <TextareaField
+            labelProps={{
+              children: "Content",
+            }}
+            textareaProps={getTextareaProps(fields.content)}
+            errors={fields.content.errors}
+          />
           <div>
             <Label>Image</Label>
             <ul className="flex flex-col gap-4">

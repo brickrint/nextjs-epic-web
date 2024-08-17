@@ -10,6 +10,7 @@ import { honeypot } from "@/utils/honeypot.server";
 
 import { Document } from "./_components/document";
 import { Provider } from "./_components/provider";
+import { SearchBar } from "./_components/search-bar";
 
 export const metadata: Metadata = {
   title: "Next Epic Notes",
@@ -28,13 +29,16 @@ export default function RootLayout({
   return (
     <Document>
       <header className="container mx-auto py-6">
-        <nav className="flex justify-between">
+        <nav className="flex items-center justify-between gap-6">
           <Link href="/">
             <div className="font-light">epic</div>
             <div className="font-bold">notes</div>
           </Link>
-          <Link className="underline" href="/signup">
-            Signup
+          <div className="ml-auto max-w-sm flex-1">
+            <SearchBar />
+          </div>
+          <Link className="underline" href="/users/kody/notes">
+            Kody`s Notes
           </Link>
         </nav>
       </header>
