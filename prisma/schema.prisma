@@ -68,6 +68,7 @@ model User {
     // sessions      Session[]
     // posts         Post[]
     notes         Note[]
+    image         UserImage?
 }
 
 model Note {
@@ -81,6 +82,34 @@ model Note {
     
     owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     ownerId String
+
+    images NoteImage[]
+}
+
+model UserImage {
+    id String @id @default(cuid())
+    altText String?
+    contentType String?
+    blob Bytes
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    userId String @unique
+}
+
+model NoteImage {
+    id String @id @default(cuid())
+    altText String?
+    contentType String?
+    blob Bytes
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    note Note @relation(fields: [noteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    noteId String
 }
 
 // model VerificationToken {
