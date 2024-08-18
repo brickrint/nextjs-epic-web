@@ -12,6 +12,7 @@
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
+    "db:seed": "prisma db seed",
     "lint": "next lint",
     "format:fix": "prettier --write .",
     "validate:all": "yarn run lint --fix && yarn run format:fix"
