@@ -2348,7 +2348,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:~5.3.0":
+"chalk@npm:^5.3.0, chalk@npm:~5.3.0":
   version: 5.3.0
   resolution: "chalk@npm:5.3.0"
   checksum: 10c0/8297d436b2c0f95801103ff2ef67268d362021b8210daf8ddbe349695333eb3610a71122172ff3b0272f1ef2cf7cc2c41fdaa4715f52e49ffe04c56340feed09
@@ -2814,6 +2814,13 @@ __metadata:
   dependencies:
     iconv-lite: "npm:^0.6.2"
   checksum: 10c0/36d938712ff00fe1f4bac88b43bcffb5930c1efa57bbcdca9d67e1d9d6c57cfb1200fb01efe0f3109b2ce99b231f90779532814a81370a1bd3274a0f58585039
+  languageName: node
+  linkType: hard
+
+"enforce-unique@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "enforce-unique@npm:1.3.0"
+  checksum: 10c0/6f1fdc03ffb7d3a2fd888bad43fcbbf6af5305a01057edb0751b9815e206b6cb0b7dcad755c2a572f94ac5bc97a0993ac6021b01bd7f08d563adf2ece6fc9cd7
   languageName: node
   linkType: hard
 
@@ -5040,10 +5047,12 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^8.1.0"
     "@typescript-eslint/parser": "npm:^8.1.0"
     autoprefixer: "npm:^10.4.20"
+    chalk: "npm:^5.3.0"
     class-variance-authority: "npm:^0.7.0"
     client-only: "npm:^0.0.1"
     clsx: "npm:^2.1.1"
     crypto-js: "npm:^4.2.0"
+    enforce-unique: "npm:^1.3.0"
     eslint: "npm:^8.57.0"
     eslint-config-next: "npm:^14.2.5"
     eslint-config-prettier: "npm:^9.1.0"

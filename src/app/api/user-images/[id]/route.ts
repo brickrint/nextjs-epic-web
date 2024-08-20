@@ -1,34 +1,27 @@
-import { createReadableStreamFromReadable } from "@remix-run/node";
+import { db } from "@/server/db";
 import { type NextRequest, NextResponse } from "next/server";
-import fs from "node:fs";
-import { PassThrough } from "node:stream";
 
-import { db } from "@/utils/db.server";
 import { invariantResponse } from "@/utils/misc.server";
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } },
 ) {
   if (!params.id) return invariantResponse("Invalid image ID");
-  const image = db.image.findFirst({
+
+  const image = await db.userImage.findFirst({
     where: { id: { equals: params.id } },
+    select: { contentType: true, blob: true },
   });
   if (!image) return invariantResponse("Image not found", { status: 404 });
 
-  const { filepath, contentType } = image;
-  const fileStat = await fs.promises.stat(filepath);
-  const body = new PassThrough();
-  const stream = fs.createReadStream(filepath);
-  stream.on("open", () => stream.pipe(body));
-  stream.on("error", (err) => body.end(err));
-  stream.on("end", () => body.end());
+  const { contentType, blob } = image;
 
-  return new NextResponse(createReadableStreamFromReadable(body), {
+  return new NextResponse(blob, {
     status: 200,
     headers: {
       "content-type": contentType,
-      "content-length": fileStat.size.toString(),
+      "content-length": Buffer.byteLength(blob).toString(),
       "content-disposition": `inline; filename="${params.id}"`,
       "cache-control": "public, max-age=31536000, immutable",
     },

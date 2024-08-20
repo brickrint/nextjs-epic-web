@@ -89,7 +89,7 @@ model Note {
 model UserImage {
     id String @id @default(cuid())
     altText String?
-    contentType String?
+    contentType String
     blob Bytes
 
     createdAt DateTime @default(now())
@@ -102,7 +102,7 @@ model UserImage {
 model NoteImage {
     id String @id @default(cuid())
     altText String?
-    contentType String?
+    contentType String
     blob Bytes
 
     createdAt DateTime @default(now())
