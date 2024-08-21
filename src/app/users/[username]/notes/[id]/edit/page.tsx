@@ -1,16 +1,16 @@
 import { getNote } from "../../../db";
 import { EditForm } from "./edit-form";
 
-export default function NoteEdit({
+export default async function NoteEdit({
   params,
 }: {
   params: { id: string; username: string };
 }) {
-  const note = getNote(params.id);
+  const note = await getNote(params.id);
 
   return (
     <div className="absolute inset-0">
-      <EditForm noteId={params.id} username={params.username} note={note} />
+      <EditForm note={note} />
     </div>
   );
 }

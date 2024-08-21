@@ -24,3 +24,17 @@ export const NoteEditorSchema = z.object({
 
 export type NoteEditorSchema = z.infer<typeof NoteEditorSchema>;
 export type ImageFieldsetSchema = z.infer<typeof ImageFieldsetSchema>;
+
+type ImageFieldset = z.infer<typeof ImageFieldsetSchema>;
+
+export function imageHasFile(
+  image: ImageFieldset,
+): image is ImageFieldset & { file: NonNullable<ImageFieldset["file"]> } {
+  return Boolean(image.file?.size && image.file?.size > 0);
+}
+
+export function imageHasId(
+  image: ImageFieldset,
+): image is ImageFieldset & { id: NonNullable<ImageFieldset["id"]> } {
+  return image.id != null;
+}

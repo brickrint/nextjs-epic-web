@@ -23,17 +23,14 @@ import { edit } from "../../actions";
 import { NoteEditorSchema } from "../../schema";
 
 export function EditForm({
-  noteId,
-  username,
   note,
 }: {
-  noteId: string;
-  username: string;
-  note: ReturnType<typeof getNote>;
+  note: Awaited<ReturnType<typeof getNote>>;
 }) {
+  const { id, owner } = note;
   const editAction = edit.bind(null, {
-    noteId,
-    username,
+    noteId: id,
+    username: owner.username,
   });
   const [actionState, updateNote] = useFormState(editAction, undefined);
 

@@ -4,7 +4,7 @@ import chalk from "chalk";
 
 import { env } from "@/env";
 
-export const db = await remember("db", async () => {
+export const db = remember("db1", () => {
   const logThreshold = 0;
 
   const client = new PrismaClient({
@@ -33,6 +33,6 @@ export const db = await remember("db", async () => {
     const dur = chalk[color](`${e.duration}ms`);
     console.info(`prisma:query - ${dur} - ${e.query}`);
   });
-  await client.$connect();
+
   return client;
 });

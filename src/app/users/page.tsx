@@ -1,41 +1,24 @@
+import Image from "next/image";
 import Link from "next/link";
 
-import { db } from "@/utils/db.server";
+import { getUserImgSrc } from "@/utils/misc.server";
 import { cn } from "@/utils/styles";
 
 import { SharedSearchBar as SearchBar } from "../_components/search-bar";
+import { getUsersByUsername } from "./[username]/db";
 
-function getUsersByUsername(searchTerm = "") {
-  const users = db.user.findMany({
-    where: {
-      username: {
-        contains: searchTerm,
-      },
-    },
-  });
-
-  return users.map((u) => ({
-    id: u.id,
-    username: u.username,
-    name: u.name,
-    // image: u.image ? { id: u.image.id } : undefined,
-  }));
-}
-
-export default function UsersPage({
+export default async function UsersPage({
   searchParams,
 }: Readonly<{ searchParams: { search: string | undefined } }>) {
   const { search: searchTerm } = searchParams;
 
-  const users = getUsersByUsername(searchTerm);
-
-  console.log("users", users);
+  const users = await getUsersByUsername(searchTerm);
 
   return (
     <div className="container mb-48 mt-36 flex flex-col items-center justify-center gap-6">
       <h1 className="text-h1">Epic Notes Users</h1>
       <div className="w-full max-w-[700px] ">
-        <SearchBar initialSearch={searchTerm} autoFocus autoSubmit />
+        <SearchBar autoFocus autoSubmit />
       </div>
       <main>
         {users.length ? (
@@ -48,14 +31,17 @@ export default function UsersPage({
             {users.map((user) => (
               <li key={user.id}>
                 <Link
-                  href={user.username}
+                  href={`/users/${user.username}`}
                   className="flex h-36 w-44 flex-col items-center justify-center rounded-lg bg-muted px-5 py-3"
                 >
-                  {/* <img
-											alt={user.name ?? user.username}
-											src={getUserImgSrc(user.image?.id)}
-											className="h-16 w-16 rounded-full"
-										/> */}
+                  <Image
+                    alt={user.name ?? user.username}
+                    src={getUserImgSrc(user.image?.id)}
+                    className="h-16 w-16 rounded-full"
+                    quality={100}
+                    width="64"
+                    height="64"
+                  />
                   {user.name ? (
                     <span className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-center text-body-md">
                       {user.name}

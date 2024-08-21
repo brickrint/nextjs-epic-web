@@ -1,7 +1,7 @@
 "use client";
 
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useId } from "react";
 
 import { useDebounce } from "@/utils/misc.client";
@@ -13,18 +13,29 @@ import { StatusButton } from "./ui/status-button";
 type SearchBarProps = {
   autoFocus?: boolean;
   autoSubmit?: boolean;
-  initialSearch?: string | null;
 };
 
-export function SharedSearchBar({
+export const SharedSearchBar = ({
   autoFocus = false,
   autoSubmit = false,
-  initialSearch,
-}: SearchBarProps) {
+}: SearchBarProps) => {
   const id = useId();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const { replace } = useRouter();
 
   const handleFormChange = useDebounce((form: HTMLFormElement) => {
-    // submit(form);
+    const formData = new FormData(form);
+    const params = new URLSearchParams(searchParams);
+    const searchTerm = formData.get("search");
+    if (typeof searchTerm === "string") {
+      params.set("search", searchTerm);
+    } else {
+      params.delete("search");
+    }
+
+    replace(`${pathname}?${params.toString()}`);
   }, 400);
 
   return (
@@ -42,7 +53,7 @@ export function SharedSearchBar({
           type="search"
           name="search"
           id={id}
-          defaultValue={initialSearch ?? ""}
+          defaultValue={searchParams.get("search") ?? ""}
           placeholder="Search"
           className="w-full"
           autoFocus={autoFocus}
@@ -60,17 +71,14 @@ export function SharedSearchBar({
       </div>
     </form>
   );
-}
+};
 
 export function SearchBar(props: SearchBarProps) {
-  const searchParams = useSearchParams();
   const pathname = usePathname();
 
   if (pathname === "/users") {
     return null;
   }
 
-  return (
-    <SharedSearchBar {...props} initialSearch={searchParams.get("search")} />
-  );
+  return <SharedSearchBar {...props} />;
 }

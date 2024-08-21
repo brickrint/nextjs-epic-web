@@ -8,12 +8,12 @@ import { SubmitButton } from "@/app/_components/ui/submit-button";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
 import { getNoteImgSrc } from "@/utils/misc.server";
 
-import { getNote, getUser } from "../../db";
+import { getNote } from "../../db";
 import { type PageProps } from "../../page";
 import { remove } from "../actions";
 
-export default function SomeNoteId({ params }: Readonly<PageProps>) {
-  const note = getNote(params.id);
+export default async function SomeNoteId({ params }: Readonly<PageProps>) {
+  const note = await getNote(params.id);
 
   const deleteNote = remove.bind(null, {
     noteId: params.id,
@@ -70,10 +70,9 @@ export default function SomeNoteId({ params }: Readonly<PageProps>) {
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const owner = getUser(params.username);
-  const note = getNote(params.id);
+  const note = await getNote(params.id);
 
-  const displayName = owner.name ?? params.username;
+  const displayName = note.owner.name ?? params.username;
   const noteTitle = note.title ?? "Note";
   const noteContentsSummary =
     note.content.length > 100

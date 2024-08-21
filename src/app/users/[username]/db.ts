@@ -1,18 +1,21 @@
+import { db as prisma } from "@/server/db";
+import type { Note } from "@prisma/client";
 import { notFound } from "next/navigation";
 import "server-only";
 
 import { db } from "@/utils/db.server";
 
-export type Note = {
-  id: string;
-  title: string;
-  content: string;
-};
-
-export function getNote(id: Note["id"]) {
-  const note = db.note.findFirst({
+export async function getNote(id: Note["id"]) {
+  const note = await prisma.note.findFirst({
     where: {
       id: { equals: id },
+    },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      images: { select: { id: true, altText: true } },
+      owner: { select: { name: true, username: true } },
     },
   });
 
@@ -20,16 +23,7 @@ export function getNote(id: Note["id"]) {
     notFound();
   }
 
-  return {
-    id: note.id,
-    title: note.title,
-    content: note.content,
-    images: note.images.map(({ id, altText }) => ({ id, altText })),
-  };
-}
-
-export function deleteNote(id: Note["id"]) {
-  db.note.delete({ where: { id: { equals: id } } });
+  return note;
 }
 
 export function updateNote({ id, title, content }: Note) {
@@ -39,9 +33,25 @@ export function updateNote({ id, title, content }: Note) {
   });
 }
 
-export function getUser(username: string) {
-  const user = db.user.findFirst({
+export async function getUser(username: string) {
+  const user = await prisma.user.findFirst({
     where: { username: { equals: username } },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      email: true,
+      createdAt: true,
+      notes: {
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          images: { select: { altText: true, id: true } },
+        },
+      },
+      image: { select: { id: true } },
+    },
   });
 
   if (!user) {
@@ -51,21 +61,46 @@ export function getUser(username: string) {
   return user;
 }
 
-export function getNotes(username: string) {
-  const owner = getUser(username);
+export async function getUsersByUsername(searchTerm = "") {
+  const users = await prisma.user.findMany({
+    where: {
+      username: {
+        contains: searchTerm,
+      },
+    },
+    select: {
+      id: true,
+      username: true,
+      name: true,
+      image: { select: { id: true } },
+    },
+  });
 
-  const notes = db.note
-    .findMany({
-      where: {
-        owner: {
-          id: { equals: owner.id },
+  return users;
+}
+
+export async function getNotes(username: string) {
+  const owner = await prisma.user.findUnique({
+    where: { username },
+    select: {
+      name: true,
+      username: true,
+      notes: {
+        select: {
+          id: true,
+          title: true,
         },
       },
-    })
-    .map(({ id, title }) => ({ id, title }));
+      image: { select: { id: true } },
+    },
+  });
+
+  if (!owner) {
+    notFound();
+  }
 
   return {
     owner,
-    notes,
+    notes: owner.notes,
   };
 }

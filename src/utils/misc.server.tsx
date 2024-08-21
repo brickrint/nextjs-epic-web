@@ -25,7 +25,8 @@ export function getErrorMessage(error: unknown): Error {
       if (isError(possibleErrorObj)) {
         return possibleErrorObj;
       }
-    } catch (e) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
       return error;
     }
   }
@@ -81,9 +82,9 @@ export function invariantResponse(
 }
 
 export function getUserImgSrc(imageId?: string | null) {
-  return imageId ? `/api/images/${imageId}` : "/assets/user.png";
+  return imageId ? `/api/user-images/${imageId}` : "/assets/user.png";
 }
 
 export function getNoteImgSrc(imageId: string) {
-  return `/api/images/${imageId}`;
+  return `/api/note-images/${imageId}`;
 }
