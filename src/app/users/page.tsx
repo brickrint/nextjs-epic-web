@@ -36,7 +36,7 @@ export default async function UsersPage({
                 >
                   <Image
                     alt={user.name ?? user.username}
-                    src={getUserImgSrc(user.image?.id)}
+                    src={getUserImgSrc(user.imageId)}
                     className="h-16 w-16 rounded-full"
                     quality={100}
                     width="64"

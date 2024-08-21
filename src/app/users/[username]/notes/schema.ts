@@ -38,3 +38,12 @@ export function imageHasId(
 ): image is ImageFieldset & { id: NonNullable<ImageFieldset["id"]> } {
   return image.id != null;
 }
+
+export const UserSearchResultSchema = z.object({
+  id: z.string(),
+  name: z.string().nullable(),
+  username: z.string(),
+  imageId: z.string().nullable(),
+});
+
+export const UserSearchResultsSchema = z.array(UserSearchResultSchema);

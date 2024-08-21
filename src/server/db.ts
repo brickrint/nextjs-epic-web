@@ -4,7 +4,7 @@ import chalk from "chalk";
 
 import { env } from "@/env";
 
-export const db = remember("db1", () => {
+export const db = remember("db", () => {
   const logThreshold = 0;
 
   const client = new PrismaClient({
