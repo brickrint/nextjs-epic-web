@@ -64,7 +64,7 @@ async function seed() {
   await prisma.user.deleteMany();
   console.timeEnd("🧹 Cleaned up the database...");
 
-  const totalUsers = 5;
+  const totalUsers = 15000;
   console.time(`👤 Created ${totalUsers} users...`);
   const noteImages = await Promise.all([
     img({
@@ -125,21 +125,22 @@ async function seed() {
           image: { create: userImages[i % 10] },
           notes: {
             create: Array.from({
-              length: faker.number.int({ min: 1, max: 3 }),
+              // length: faker.number.int({ min: 1, max: 3 }),
+              length: faker.number.int({ min: 200, max: 300 }),
             }).map(() => {
               return {
                 title: faker.lorem.sentence(),
                 content: faker.lorem.paragraphs(),
-                images: {
-                  create: Array.from({
-                    length: faker.number.int({ min: 1, max: 3 }),
-                  })
-                    .map(() => {
-                      const imgNumber = faker.number.int({ min: 0, max: 9 });
-                      return noteImages[imgNumber];
-                    })
-                    .filter(Boolean),
-                },
+                // images: {
+                //   create: Array.from({
+                //     length: faker.number.int({ min: 1, max: 3 }),
+                //   })
+                //     .map(() => {
+                //       const imgNumber = faker.number.int({ min: 0, max: 9 });
+                //       return noteImages[imgNumber];
+                //     })
+                //     .filter(Boolean),
+                // },
               };
             }),
           },

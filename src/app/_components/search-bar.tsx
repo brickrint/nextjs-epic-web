@@ -2,7 +2,7 @@
 
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useId } from "react";
+import { useId, useTransition } from "react";
 
 import { useDebounce } from "@/utils/misc.client";
 
@@ -22,20 +22,23 @@ export const SharedSearchBar = ({
   const id = useId();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { replace } = useRouter();
+  const router = useRouter();
+  const [_, startTransition] = useTransition();
 
   const handleFormChange = useDebounce((form: HTMLFormElement) => {
-    const formData = new FormData(form);
-    const params = new URLSearchParams(searchParams);
-    const searchTerm = formData.get("search");
-    if (typeof searchTerm === "string") {
-      params.set("search", searchTerm);
-    } else {
-      params.delete("search");
-    }
+    startTransition(() => {
+      const formData = new FormData(form);
+      const params = new URLSearchParams(searchParams);
+      const searchTerm = formData.get("search");
 
-    replace(`${pathname}?${params.toString()}`);
+      if (typeof searchTerm === "string") {
+        params.set("search", searchTerm);
+      } else {
+        params.delete("search");
+      }
+
+      router.replace(`${pathname}?${params.toString()}`);
+    });
   }, 400);
 
   return (

@@ -84,6 +84,9 @@ model Note {
     ownerId String
 
     images NoteImage[]
+
+    @@index([ownerId])
+    @@index([ownerId, updatedAt])
 }
 
 model UserImage {
@@ -110,6 +113,8 @@ model NoteImage {
 
     note Note @relation(fields: [noteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     noteId String
+
+    @@index([noteId])
 }
 
 // model VerificationToken {
