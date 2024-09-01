@@ -1,5 +1,6 @@
 "use client";
 
+import { TRPCReactProvider } from "@/trpc/react";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
 import { type HoneypotInputProps } from "remix-utils/honeypot/server";
 
@@ -15,8 +16,10 @@ export function Provider({
   csrfToken: CSRFToken;
 }>) {
   return (
-    <AuthenticityTokenProvider token={csrfToken}>
-      <HoneypotProvider {...honeypotInputProps}>{children}</HoneypotProvider>
-    </AuthenticityTokenProvider>
+    <TRPCReactProvider>
+      <AuthenticityTokenProvider token={csrfToken}>
+        <HoneypotProvider {...honeypotInputProps}>{children}</HoneypotProvider>
+      </AuthenticityTokenProvider>
+    </TRPCReactProvider>
   );
 }

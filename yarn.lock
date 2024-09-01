@@ -1569,6 +1569,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/js-cookie@npm:^3":
+  version: 3.0.6
+  resolution: "@types/js-cookie@npm:3.0.6"
+  checksum: 10c0/173afaf5ea9d86c22395b9d2a00b6adb0006dcfef165d6dcb0395cdc32f5a5dcf9c3c60f97194119963a15849b8f85121e1ae730b03e40bc0c29b84396ba22f9
+  languageName: node
+  linkType: hard
+
 "@types/json-schema@npm:*":
   version: 7.0.15
   resolution: "@types/json-schema@npm:7.0.15"
@@ -4395,6 +4402,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"js-cookie@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "js-cookie@npm:3.0.5"
+  checksum: 10c0/04a0e560407b4489daac3a63e231d35f4e86f78bff9d792011391b49c59f721b513411cd75714c418049c8dc9750b20fcddad1ca5a2ca616c3aca4874cce5b3a
+  languageName: node
+  linkType: hard
+
 "js-tokens@npm:^3.0.0 || ^4.0.0, js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
@@ -5058,6 +5072,7 @@ __metadata:
     "@trpc/server": "npm:^11.0.0-rc.446"
     "@types/crypto-js": "npm:^4.2.2"
     "@types/eslint": "npm:^8.56.10"
+    "@types/js-cookie": "npm:^3"
     "@types/node": "npm:^22.3.0"
     "@types/react": "npm:^18.3.3"
     "@types/react-dom": "npm:^18.3.0"
@@ -5075,6 +5090,7 @@ __metadata:
     eslint-config-prettier: "npm:^9.1.0"
     geist: "npm:^1.3.1"
     husky: "npm:^9.1.4"
+    js-cookie: "npm:^3.0.5"
     lint-staged: "npm:^15.2.9"
     msw: "npm:^2.3.5"
     next: "npm:^14.2.5"
@@ -5095,6 +5111,7 @@ __metadata:
     tailwindcss-animate: "npm:^1.0.7"
     tsx: "npm:^4.17.0"
     typescript: "npm:^5.5.4"
+    use-media: "npm:^1.5.0"
     zod: "npm:^3.23.8"
   languageName: unknown
   linkType: soft
@@ -6931,6 +6948,15 @@ __metadata:
     querystringify: "npm:^2.1.1"
     requires-port: "npm:^1.0.0"
   checksum: 10c0/bd5aa9389f896974beb851c112f63b466505a04b4807cea2e5a3b7092f6fbb75316f0491ea84e44f66fed55f1b440df5195d7e3a8203f64fcefa19d182f5be87
+  languageName: node
+  linkType: hard
+
+"use-media@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "use-media@npm:1.5.0"
+  peerDependencies:
+    react: "*"
+  checksum: 10c0/c51b683d09749780e08b650e2fc0abb34f131ea91034c844a7879482b35eb3278263ebd3aded41680840a80e8e855a26d45ed23caa25bacf144a6df4b65b95d7
   languageName: node
   linkType: hard
 

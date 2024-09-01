@@ -1,12 +1,13 @@
 import "@/styles/globals.css";
-import { TRPCReactProvider } from "@/trpc/react";
 import { type Metadata } from "next";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import Link from "next/link";
 import os from "node:os";
 
 import { getCsrfToken } from "@/utils/csrf.server";
 import { honeypot } from "@/utils/honeypot.server";
+import { ThemeSwitch } from "@/utils/theme.client";
+import { getTheme } from "@/utils/theme.server";
 
 import { Document } from "./_components/document";
 import { Provider } from "./_components/provider";
@@ -24,10 +25,12 @@ export default function RootLayout({
   const { username } = os.userInfo();
 
   const headersList = headers();
+  const cookiesList = cookies();
   const csrfToken = getCsrfToken(headersList);
+  const theme = getTheme(cookiesList);
 
   return (
-    <Document>
+    <Document theme={theme}>
       <header className="container mx-auto py-6">
         <nav className="flex items-center justify-between gap-6">
           <Link href="/">
@@ -43,22 +46,23 @@ export default function RootLayout({
         </nav>
       </header>
 
-      <TRPCReactProvider>
-        <Provider
-          honeypotInputProps={honeypot.getInputProps()}
-          csrfToken={csrfToken}
-        >
-          <main className="flex-1">{children}</main>
-        </Provider>
-      </TRPCReactProvider>
+      <Provider
+        honeypotInputProps={honeypot.getInputProps()}
+        csrfToken={csrfToken}
+      >
+        <main className="flex-1">{children}</main>
 
-      <div className="container mx-auto flex justify-between">
-        <Link href="/">
-          <div className="font-light">epic</div>
-          <div className="font-bold">notes</div>
-        </Link>
-        <p>Built with ♥️ by {username}</p>
-      </div>
+        <div className="container mx-auto flex justify-between">
+          <Link href="/">
+            <div className="font-light">epic</div>
+            <div className="font-bold">notes</div>
+          </Link>
+          <div className="flex items-center gap-2">
+            <p>Built with ♥️ by {username}</p>
+            <ThemeSwitch userPreference={theme} />
+          </div>
+        </div>
+      </Provider>
     </Document>
   );
 }

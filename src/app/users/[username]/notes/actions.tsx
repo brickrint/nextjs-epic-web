@@ -3,10 +3,12 @@
 import { db as prisma } from "@/server/db";
 import { parseWithZod as parse } from "@conform-to/zod";
 import { createId as cuid } from "@paralleldrive/cuid2";
+import { cookies } from "next/headers";
 import { RedirectType, redirect } from "next/navigation";
 
 import { checkHoneypot } from "@/utils/honeypot.server";
 import { invariantError } from "@/utils/misc.server";
+import { ThemeFormSchema, setTheme } from "@/utils/theme.server";
 
 import { NoteEditorSchema, imageHasFile, imageHasId } from "./schema";
 
@@ -105,4 +107,18 @@ export async function remove(
   });
 
   redirect(`/users/${username}/notes`, RedirectType.replace);
+}
+
+export async function toggleTheme(_: unknown, formData: FormData) {
+  invariantError(formData.get("intent") === "update-theme", "Invalid intent");
+
+  const submission = parse(formData, {
+    schema: ThemeFormSchema,
+  });
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  setTheme(cookies(), submission.value.theme);
 }
