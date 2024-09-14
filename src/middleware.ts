@@ -5,6 +5,7 @@ import type { MiddlewareConfig, NextMiddleware } from "next/server";
 import { csrfProtect } from "./utils/csrf.server";
 import { invariantResponse } from "./utils/misc.server";
 import { THEME_COOKIE_NAME, setTheme } from "./utils/theme.server";
+import { middleware as toastMiddleware } from "./utils/toast.server";
 
 export const middleware: NextMiddleware = async (request) => {
   const response = NextResponse.next();
@@ -22,6 +23,8 @@ export const middleware: NextMiddleware = async (request) => {
   if (!request.cookies.has(THEME_COOKIE_NAME)) {
     setTheme(response.cookies, "light");
   }
+
+  toastMiddleware(request, response);
 
   return response;
 };

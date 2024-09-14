@@ -1,6 +1,6 @@
 "use server";
 
-import { db as prisma } from "@/server/db";
+import { db } from "@/server/db";
 import { parseWithZod as parse } from "@conform-to/zod";
 import { createId as cuid } from "@paralleldrive/cuid2";
 import { cookies } from "next/headers";
@@ -9,6 +9,7 @@ import { RedirectType, redirect } from "next/navigation";
 import { checkHoneypot } from "@/utils/honeypot.server";
 import { invariantError } from "@/utils/misc.server";
 import { ThemeFormSchema, setTheme } from "@/utils/theme.server";
+import { createCookie as createToastCookie } from "@/utils/toast.server";
 
 import { NoteEditorSchema, imageHasFile, imageHasId } from "./schema";
 
@@ -70,7 +71,7 @@ export async function edit(
     newImages = [],
   } = submission.value;
 
-  await prisma.note.update({
+  await db.note.update({
     select: { id: true },
     where: { id: noteId },
     data: {
@@ -100,10 +101,16 @@ export async function remove(
 
   invariantError(intent === "delete", "Invalid intent");
 
-  await prisma.note.delete({
+  await db.note.delete({
     where: {
       id: noteId,
     },
+  });
+
+  createToastCookie(cookies(), {
+    type: "success",
+    title: "Note deleted",
+    description: "Your note has been deleted",
   });
 
   redirect(`/users/${username}/notes`, RedirectType.replace);

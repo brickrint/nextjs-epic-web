@@ -27,6 +27,7 @@ export const env = createEnv({
     DISCORD_CLIENT_ID: z.string(),
     DISCORD_CLIENT_SECRET: z.string(),
     HONEYPOT_ENCRYPTION_SEED: z.string(),
+    SESSION_SECRET: z.string(),
   },
 
   /**
@@ -50,6 +51,7 @@ export const env = createEnv({
     DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
     HONEYPOT_ENCRYPTION_SEED: process.env.HONEYPOT_ENCRYPTION_SEED,
+    SESSION_SECRET: process.env.SESSION_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

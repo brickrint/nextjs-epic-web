@@ -3,11 +3,14 @@ import { type Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import Link from "next/link";
 import os from "node:os";
+import { Toaster } from "sonner";
 
 import { getCsrfToken } from "@/utils/csrf.server";
 import { honeypot } from "@/utils/honeypot.server";
 import { ThemeSwitch } from "@/utils/theme.client";
 import { getTheme } from "@/utils/theme.server";
+import { ShowToast } from "@/utils/toast.client";
+import { parseHeaders as parseToastHeaders } from "@/utils/toast.server";
 
 import { Document } from "./_components/document";
 import { Provider } from "./_components/provider";
@@ -28,6 +31,7 @@ export default function RootLayout({
   const cookiesList = cookies();
   const csrfToken = getCsrfToken(headersList);
   const theme = getTheme(cookiesList);
+  const toast = parseToastHeaders(headersList);
 
   return (
     <Document theme={theme}>
@@ -50,7 +54,11 @@ export default function RootLayout({
         honeypotInputProps={honeypot.getInputProps()}
         csrfToken={csrfToken}
       >
-        <main className="flex-1">{children}</main>
+        <main className="flex-1">
+          {children}
+
+          {toast && <ShowToast toast={toast} />}
+        </main>
 
         <div className="container mx-auto flex justify-between">
           <Link href="/">
@@ -63,6 +71,8 @@ export default function RootLayout({
           </div>
         </div>
       </Provider>
+
+      <Toaster closeButton position="top-center" />
     </Document>
   );
 }
