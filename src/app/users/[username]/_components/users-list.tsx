@@ -1,12 +1,30 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 
+import { Skeleton } from "@/app/_components/ui/skeleton";
 import { getUserImgSrc } from "@/utils/misc.server";
 import { cn } from "@/utils/styles";
 
 import { getUsersByUsername } from "../db";
 
-export async function UsersList({
+function UsersListSkeleton() {
+  return (
+    <ul className="flex w-full flex-wrap items-center justify-center gap-4">
+      {Array.from({ length: 12 }).map((_, index) => (
+        <li key={index}>
+          <div className="flex h-36 w-44 flex-col items-center justify-center rounded-lg bg-muted px-5 py-3">
+            <Skeleton className="h-16 w-16 rounded-full" />
+            <Skeleton className="mt-2 h-4 w-20" />
+            <Skeleton className="mt-1 h-3 w-16" />
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+async function UsersListContent({
   searchTerm,
 }: {
   searchTerm: string | undefined;
@@ -47,3 +65,13 @@ export async function UsersList({
     </ul>
   );
 }
+
+function UsersList({ searchTerm }: { searchTerm: string | undefined }) {
+  return (
+    <Suspense fallback={<UsersListSkeleton />}>
+      <UsersListContent searchTerm={searchTerm} />
+    </Suspense>
+  );
+}
+
+export { UsersList };

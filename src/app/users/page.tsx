@@ -1,5 +1,3 @@
-import { Suspense } from "react";
-
 import { SharedSearchBar as SearchBar } from "../_components/search-bar";
 import { UsersList } from "./[username]/_components/users-list";
 
@@ -15,9 +13,7 @@ export default async function UsersPage({
         <SearchBar autoFocus autoSubmit />
       </div>
       <main>
-        <Suspense key={search} fallback={<p>Loading...</p>}>
-          <UsersList searchTerm={search} />
-        </Suspense>
+        <UsersList searchTerm={search} />
       </main>
     </div>
   );
