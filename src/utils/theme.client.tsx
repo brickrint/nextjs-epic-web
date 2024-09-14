@@ -4,22 +4,17 @@ import { getFormProps, getInputProps } from "@conform-to/react";
 import { useForm } from "@conform-to/react";
 import { parseWithZod as parse } from "@conform-to/zod";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
-import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { useFormState } from "react-dom";
-import { useMedia } from "use-media";
 
 import { ErrorList } from "@/app/_components/forms";
 import { Input } from "@/app/_components/ui/input";
 import { toggleTheme as toggleThemeAction } from "@/app/users/[username]/notes/actions";
 
 import { AuthenticityTokenInput } from "./csrf.client";
-import { THEME_COOKIE_NAME, type Theme, ThemeFormSchema } from "./theme.server";
+import { type Theme, ThemeFormSchema } from "./theme.server";
 
 export function ThemeSwitch({ userPreference }: { userPreference?: Theme }) {
   const [actionState, toggleTheme] = useFormState(toggleThemeAction, undefined);
-  const router = useRouter();
 
   const [form, field] = useForm({
     id: "theme-switch",
@@ -28,22 +23,8 @@ export function ThemeSwitch({ userPreference }: { userPreference?: Theme }) {
     },
   });
 
-  const prefersColorScheme: Theme = useMedia(
-    "(prefers-color-scheme: dark)",
-    userPreference === "dark",
-  )
-    ? "dark"
-    : "light";
-
-  const mode = userPreference ?? "light";
+  const mode: Theme = userPreference ?? "light";
   const nextMode = mode === "light" ? "dark" : "light";
-
-  useEffect(() => {
-    if (mode !== prefersColorScheme) {
-      Cookies.set(THEME_COOKIE_NAME, prefersColorScheme);
-      router.refresh();
-    }
-  }, [prefersColorScheme, mode, router]);
 
   const modeLabel = {
     light: (

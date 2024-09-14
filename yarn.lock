@@ -5111,7 +5111,6 @@ __metadata:
     tailwindcss-animate: "npm:^1.0.7"
     tsx: "npm:^4.17.0"
     typescript: "npm:^5.5.4"
-    use-media: "npm:^1.5.0"
     zod: "npm:^3.23.8"
   languageName: unknown
   linkType: soft
@@ -6948,15 +6947,6 @@ __metadata:
     querystringify: "npm:^2.1.1"
     requires-port: "npm:^1.0.0"
   checksum: 10c0/bd5aa9389f896974beb851c112f63b466505a04b4807cea2e5a3b7092f6fbb75316f0491ea84e44f66fed55f1b440df5195d7e3a8203f64fcefa19d182f5be87
-  languageName: node
-  linkType: hard
-
-"use-media@npm:^1.5.0":
-  version: 1.5.0
-  resolution: "use-media@npm:1.5.0"
-  peerDependencies:
-    react: "*"
-  checksum: 10c0/c51b683d09749780e08b650e2fc0abb34f131ea91034c844a7879482b35eb3278263ebd3aded41680840a80e8e855a26d45ed23caa25bacf144a6df4b65b95d7
   languageName: node
   linkType: hard
 
