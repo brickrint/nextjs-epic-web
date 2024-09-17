@@ -1,10 +1,13 @@
+import { ExitIcon } from "@radix-ui/react-icons";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
 import { Spacer } from "@/app/_components/spacer";
 import { Button } from "@/app/_components/ui/button";
+import { AuthenticityTokenInput } from "@/utils/csrf.client";
 import { getUserImgSrc } from "@/utils/misc.server";
+import { getOptionalUser } from "@/utils/session.server";
 
 import { getUser } from "./db";
 
@@ -12,8 +15,10 @@ export type PageProps = { params: { username: string; id: string } };
 
 export default async function UserPage({ params }: PageProps) {
   const user = await getUser(params.username);
+  const loggedInUser = await getOptionalUser();
   const userDisplayName = user.name ?? user.username;
   const userJoinedDisplay = user.createdAt.toLocaleDateString();
+  const isLoggedInUser = user.id === loggedInUser?.id;
 
   return (
     <div className="container mb-48 mt-36 flex flex-col items-center justify-center">
@@ -43,6 +48,16 @@ export default async function UserPage({ params }: PageProps) {
           <p className="mt-2 text-center text-muted-foreground">
             Joined {userJoinedDisplay}
           </p>
+          {isLoggedInUser ? (
+            <form className="mt-3">
+              <AuthenticityTokenInput />
+
+              <Button type="submit" variant="link" size="pill">
+                <ExitIcon name="exit" className="scale-125 max-md:scale-150" />
+                Logout
+              </Button>
+            </form>
+          ) : null}
           <div className="mt-10 flex gap-4">
             <Button asChild>
               <Link href={`${params.username}/notes`}>

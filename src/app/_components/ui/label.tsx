@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { type VariantProps, cva } from "class-variance-authority";
 import * as React from "react";
@@ -20,7 +19,6 @@ const Label = React.forwardRef<
     {...props}
   />
 ));
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
 Label.displayName = LabelPrimitive.Root.displayName;
 
 export { Label };

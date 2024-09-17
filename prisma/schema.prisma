@@ -69,6 +69,7 @@ model User {
     // posts         Post[]
     notes         Note[]
     image         UserImage?
+    password      Password?
 }
 
 model Note {
@@ -115,6 +116,13 @@ model NoteImage {
     noteId String
 
     @@index([noteId])
+}
+
+model Password {
+    hash String
+
+    userId String @unique
+    used User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 // model VerificationToken {

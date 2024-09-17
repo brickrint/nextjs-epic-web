@@ -1,46 +1,10 @@
 import { faker } from "@faker-js/faker";
 import { PrismaClient } from "@prisma/client";
-import { UniqueEnforcer } from "enforce-unique";
 import fs from "node:fs";
 import { promiseHash } from "remix-utils/promise";
+import { createPassword, createUser } from "tests/db-utils";
 
 const prisma = new PrismaClient();
-
-// 🐨 create a unique username enforcer here
-const usernameEnforcer = new UniqueEnforcer();
-
-export function createUser() {
-  const firstName = faker.person.firstName();
-  const lastName = faker.person.lastName();
-
-  // 🐨 use the unique username enforcer here
-  // 💯 you might add a tiny bit of random alphanumeric characters to the start
-  // of the username to reduce the chance of collisions.
-  const username = usernameEnforcer
-    .enforce(
-      () =>
-        faker.string.alphanumeric({ length: 5 }) +
-        "_" +
-        faker.internet.userName({
-          firstName: firstName.toLowerCase(),
-          lastName: lastName.toLowerCase(),
-        }),
-    )
-    .slice(0, 20)
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "_");
-
-  // 🐨 transform the username to only be the first 20 characters
-  // 💰 you can use .slice(0, 20) for this
-  // 🐨 turn the username to lowercase
-  // 🐨 replace any non-alphanumeric characters with an underscore
-
-  return {
-    username,
-    name: `${firstName} ${lastName}`,
-    email: `${username}@example.com`,
-  };
-}
 
 async function img({
   altText,
@@ -117,11 +81,15 @@ async function seed() {
   );
 
   for (let i = 0; i < totalUsers; i++) {
+    const userData = createUser();
     await prisma.user
       .create({
         select: { id: true },
         data: {
-          ...createUser(),
+          ...userData,
+          password: {
+            create: createPassword(userData.username),
+          },
           image: { create: userImages[i % 10] },
           notes: {
             create: Array.from({
@@ -270,6 +238,9 @@ async function seed() {
       name: "Kody",
       image: {
         create: kodyImages.kodyUser,
+      },
+      password: {
+        create: createPassword("kodylovesyou"),
       },
       notes: {
         create: kodyNotes.map((note) => ({

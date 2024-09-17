@@ -1,5 +1,6 @@
+import { NoteEditor } from "../../../_components/note-editor";
 import { getNote } from "../../../db";
-import { EditForm } from "./edit-form";
+import { edit } from "../../actions";
 
 export default async function NoteEdit({
   params,
@@ -7,12 +8,7 @@ export default async function NoteEdit({
   params: { id: string; username: string };
 }) {
   const note = await getNote(params.id);
+  const editAction = edit.bind(null, { noteId: note.id });
 
-  return (
-    <div className="absolute inset-0">
-      <EditForm note={note} />
-    </div>
-  );
+  return <NoteEditor note={note} action={editAction} />;
 }
-
-export const dynamic = "force-dynamic";

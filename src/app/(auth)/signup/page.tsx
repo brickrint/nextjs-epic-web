@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { Spacer } from "@/app/_components/spacer";
+
 import { Form } from "./_components/form";
 
 export default function SignupPage() {
@@ -12,6 +14,7 @@ export default function SignupPage() {
             Please enter your details.
           </p>
         </div>
+        <Spacer size="xs" />
         <Form />
       </div>
     </div>

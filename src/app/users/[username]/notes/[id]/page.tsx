@@ -1,18 +1,20 @@
+import { ClockIcon, Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
 import { type Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
 import { floatingToolbarClassName } from "@/app/_components/floating-toolbar";
 import { Button } from "@/app/_components/ui/button";
-import { SubmitButton } from "@/app/_components/ui/submit-button";
+import { StatusButton } from "@/app/_components/ui/status-button";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
 import { getNoteImgSrc } from "@/utils/misc.server";
+import { getOptionalUser } from "@/utils/session.server";
 
 import { getNote } from "../../db";
 import { type PageProps } from "../../page";
 import { remove } from "../actions";
 
-export default async function SomeNoteId({ params }: Readonly<PageProps>) {
+export default async function NotePage({ params }: Readonly<PageProps>) {
   const note = await getNote(params.id);
 
   const deleteNote = remove.bind(null, {
@@ -20,10 +22,14 @@ export default async function SomeNoteId({ params }: Readonly<PageProps>) {
     username: params.username,
   });
 
+  const user = await getOptionalUser();
+
+  const isOwner = note.ownerId === user?.id;
+
   return (
-    <>
+    <div className="absolute inset-0 flex flex-col px-10">
       <h2 className="mb-2 pt-12 text-h2 lg:mb-6">{note.title}</h2>
-      <div className="overflow-y-auto pb-24">
+      <div className={`${isOwner ? "pb-24" : "pb-12"} overflow-y-auto`}>
         <ul className="flex flex-wrap gap-5 py-5">
           {note.images.map((image) => {
             const src = getNoteImgSrc(image.id);
@@ -43,27 +49,50 @@ export default async function SomeNoteId({ params }: Readonly<PageProps>) {
             );
           })}
         </ul>
-        <p className="whitespace-break-spaces text-sm md:text-lg">
-          {note.content}
-        </p>
-        <div className={floatingToolbarClassName}>
-          <form action={deleteNote}>
-            <AuthenticityTokenInput />
-            <SubmitButton
-              type="submit"
-              variant="destructive"
-              name="intent"
-              value="delete"
-            >
-              Delete
-            </SubmitButton>
-          </form>
-          <Button asChild>
-            <Link href={`${note.id}/edit`}>Edit</Link>
-          </Button>
-        </div>
       </div>
-    </>
+      <p className="whitespace-break-spaces text-sm md:text-lg">
+        {note.content}
+      </p>
+      {isOwner ? (
+        <div className={floatingToolbarClassName}>
+          <span className="text-sm text-foreground/90 max-[524px]:hidden inline-flex items-center gap-1.5">
+            <ClockIcon name="clock" className="scale-125" />
+            {note.timeAgo} ago
+          </span>
+          <div className="grid flex-1 grid-cols-2 justify-end gap-2 min-[525px]:flex md:gap-4">
+            <form action={deleteNote}>
+              <AuthenticityTokenInput />
+              <StatusButton
+                type="submit"
+                variant="destructive"
+                name="intent"
+                value="delete"
+                className="inline-flex items-center gap-1.5"
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  <TrashIcon
+                    name="trash"
+                    className="scale-125 max-md:scale-150"
+                  />
+                  <span>Delete</span>
+                </span>
+              </StatusButton>
+            </form>
+            <Button asChild>
+              <Link href={`${note.id}/edit`}>
+                <span className="inline-flex items-center gap-1.5">
+                  <Pencil1Icon
+                    name="trash"
+                    className="scale-125 max-md:scale-150"
+                  />
+                  <span>Edit</span>
+                </span>
+              </Link>
+            </Button>
+          </div>
+        </div>
+      ) : null}
+    </div>
   );
 }
 

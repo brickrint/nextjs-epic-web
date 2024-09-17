@@ -976,6 +976,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@radix-ui/react-checkbox@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@radix-ui/react-checkbox@npm:1.1.1"
+  dependencies:
+    "@radix-ui/primitive": "npm:1.1.0"
+    "@radix-ui/react-compose-refs": "npm:1.1.0"
+    "@radix-ui/react-context": "npm:1.1.0"
+    "@radix-ui/react-presence": "npm:1.1.0"
+    "@radix-ui/react-primitive": "npm:2.0.0"
+    "@radix-ui/react-use-controllable-state": "npm:1.1.0"
+    "@radix-ui/react-use-previous": "npm:1.1.0"
+    "@radix-ui/react-use-size": "npm:1.1.0"
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: 10c0/2d7d35b8319298166905057e9f7fb1d4b51d73bdec6c7c2127d2266e0f053c39586e316ea0da9a24612dfa86b8fc1f5160d4c37f79ae567025b62616de95c2c7
+  languageName: node
+  linkType: hard
+
 "@radix-ui/react-compose-refs@npm:1.1.0":
   version: 1.1.0
   resolution: "@radix-ui/react-compose-refs@npm:1.1.0"
@@ -1253,6 +1279,19 @@ __metadata:
     "@types/react":
       optional: true
   checksum: 10c0/9bf87ece1845c038ed95863cfccf9d75f557c2400d606343bab0ab3192b9806b9840e6aa0a0333fdf3e83cf9982632852192f3e68d7d8367bc8c788dfdf8e62b
+  languageName: node
+  linkType: hard
+
+"@radix-ui/react-use-previous@npm:1.1.0":
+  version: 1.1.0
+  resolution: "@radix-ui/react-use-previous@npm:1.1.0"
+  peerDependencies:
+    "@types/react": "*"
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 10c0/9787d24790d4e330715127f2f4db56c4cbed9b0a47f97e11a68582c08a356a53c1ec41c7537382f6fb8d0db25de152770f17430e8eaf0fa59705be97760acbad
   languageName: node
   linkType: hard
 
@@ -1535,6 +1574,13 @@ __metadata:
   version: 11.0.0-rc.467
   resolution: "@trpc/server@npm:11.0.0-rc.467"
   checksum: 10c0/6cb621d59507708c47eac57e2da5d4c19ab7a2767c89a9f27ebbef7723bf8d45b299bb7f3e029fb7b40566a6a08452e1d21b628ec1f3523b1960dac203eeb724
+  languageName: node
+  linkType: hard
+
+"@types/bcryptjs@npm:^2":
+  version: 2.4.6
+  resolution: "@types/bcryptjs@npm:2.4.6"
+  checksum: 10c0/1182663f0c081c5c58760019459cd309335e9b5fc6552780b0fd21b6c5f25661a844709e46218796f4bdbebe6736e11cfc5af0729bc2cdb0160943650aceb3da
   languageName: node
   linkType: hard
 
@@ -2224,6 +2270,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bcryptjs@npm:^2.4.3":
+  version: 2.4.3
+  resolution: "bcryptjs@npm:2.4.3"
+  checksum: 10c0/b969467087ed7a01ff905a1c6a0c45014ec586248a448ea08370c8ed8bb314bda16a870ca23e0961d7d23bdce1a04c76fa70a9d680be814fa9ac7d8fc61870a3
+  languageName: node
+  linkType: hard
+
 "binary-extensions@npm:^2.0.0":
   version: 2.3.0
   resolution: "binary-extensions@npm:2.3.0"
@@ -2676,6 +2729,13 @@ __metadata:
   dependencies:
     "@babel/runtime": "npm:^7.21.0"
   checksum: 10c0/e4b521fbf22bc8c3db332bbfb7b094fd3e7627de0259a9d17c7551e2d2702608a7307a449206065916538e384f37b181565447ce2637ae09828427aed9cb5581
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "date-fns@npm:4.0.0"
+  checksum: 10c0/c706d29f05c28fdaea939068d688489bbc3096ef2486d1fe4a56d209c3a061ba99febae943b9562bb8ac08fe61257cf11fe74adad164adb7ba6df994e09cb99b
   languageName: node
   linkType: hard
 
@@ -5065,6 +5125,7 @@ __metadata:
     "@mswjs/data": "npm:^0.16.1"
     "@paralleldrive/cuid2": "npm:^2.2.2"
     "@prisma/client": "npm:^5.18.0"
+    "@radix-ui/react-checkbox": "npm:^1.1.1"
     "@radix-ui/react-icons": "npm:^1.3.0"
     "@radix-ui/react-label": "npm:^2.1.0"
     "@radix-ui/react-slot": "npm:^1.1.0"
@@ -5077,6 +5138,7 @@ __metadata:
     "@trpc/client": "npm:^11.0.0-rc.446"
     "@trpc/react-query": "npm:^11.0.0-rc.446"
     "@trpc/server": "npm:^11.0.0-rc.446"
+    "@types/bcryptjs": "npm:^2"
     "@types/crypto-js": "npm:^4"
     "@types/eslint": "npm:^8.56.10"
     "@types/js-cookie": "npm:^3"
@@ -5086,11 +5148,13 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^8.1.0"
     "@typescript-eslint/parser": "npm:^8.1.0"
     autoprefixer: "npm:^10.4.20"
+    bcryptjs: "npm:^2.4.3"
     chalk: "npm:^5.3.0"
     class-variance-authority: "npm:^0.7.0"
     client-only: "npm:^0.0.1"
     clsx: "npm:^2.1.1"
     crypto-js: "npm:^4.2.0"
+    date-fns: "npm:^4.0.0"
     enforce-unique: "npm:^1.3.0"
     eslint: "npm:^8.57.0"
     eslint-config-next: "npm:^14.2.5"

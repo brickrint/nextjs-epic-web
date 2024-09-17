@@ -1,5 +1,6 @@
 import { db } from "@/server/db";
 import type { Note } from "@prisma/client";
+import { formatDistanceToNow } from "date-fns";
 import { notFound } from "next/navigation";
 import "server-only";
 import { type z } from "zod";
@@ -17,8 +18,10 @@ export async function getNote(id: Note["id"]) {
       id: true,
       title: true,
       content: true,
+      updatedAt: true,
       images: { select: { id: true, altText: true } },
       owner: { select: { name: true, username: true } },
+      ownerId: true,
     },
   });
 
@@ -26,7 +29,13 @@ export async function getNote(id: Note["id"]) {
     notFound();
   }
 
-  return note;
+  const date = new Date(note.updatedAt);
+  const timeAgo = formatDistanceToNow(date);
+
+  return {
+    ...note,
+    timeAgo,
+  };
 }
 
 export async function getUser(username: string) {
