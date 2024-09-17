@@ -7,6 +7,11 @@ import {
   UsernameSchema,
 } from "@/utils/user-validation";
 
+export const LoginFormSchema = z.object({
+  username: UsernameSchema,
+  password: PasswordSchema,
+});
+
 export const SignupFormSchema = z
   .object({
     username: UsernameSchema,

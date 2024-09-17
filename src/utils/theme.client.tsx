@@ -6,9 +6,9 @@ import { parseWithZod as parse } from "@conform-to/zod";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useFormState } from "react-dom";
 
+import { toggleTheme as toggleThemeAction } from "@/app/(notes-management)/[username]/notes/actions";
 import { ErrorList } from "@/app/_components/forms";
 import { Input } from "@/app/_components/ui/input";
-import { toggleTheme as toggleThemeAction } from "@/app/users/[username]/notes/actions";
 
 import { AuthenticityTokenInput } from "./csrf.client";
 import { type Theme, ThemeFormSchema } from "./theme.server";

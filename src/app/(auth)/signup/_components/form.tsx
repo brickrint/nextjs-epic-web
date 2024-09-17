@@ -9,8 +9,8 @@ import { CheckboxField, ErrorList, Field } from "@/app/_components/forms";
 import { StatusButton } from "@/app/_components/ui/status-button";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
 
-import { signup as signupAction } from "../actions";
-import { SignupFormSchema } from "../schema";
+import { signup as signupAction } from "../../actions";
+import { SignupFormSchema } from "../../schema";
 
 export function Form() {
   const [actionState, signup] = useFormState(signupAction, undefined);

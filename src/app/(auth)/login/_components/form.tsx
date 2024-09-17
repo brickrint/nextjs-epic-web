@@ -10,8 +10,8 @@ import { ErrorList, Field } from "@/app/_components/forms";
 import { StatusButton } from "@/app/_components/ui/status-button";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
 
-import { login as loginAction } from "../actions";
-import { LoginFormSchema } from "../schema";
+import { login as loginAction } from "../../actions";
+import { LoginFormSchema } from "../../schema";
 
 export function Form() {
   const [actionState, login] = useFormState(loginAction, undefined);
