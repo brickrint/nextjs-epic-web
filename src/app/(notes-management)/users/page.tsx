@@ -1,4 +1,5 @@
-import { SharedSearchBar as SearchBar } from "../_components/search-bar";
+import { SharedSearchBar as SearchBar } from "@/app/_components/search-bar";
+
 import { UsersList } from "./[username]/_components/users-list";
 
 export default async function UsersPage({

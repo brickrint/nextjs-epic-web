@@ -9,6 +9,7 @@ import { Toaster } from "sonner";
 import { getCsrfToken } from "@/utils/csrf.server";
 import { honeypot } from "@/utils/honeypot.server";
 import { getUserImgSrc } from "@/utils/misc.server";
+import { LogoutTimer } from "@/utils/session.client";
 import { getOptionalUser } from "@/utils/session.server";
 import { ThemeSwitch } from "@/utils/theme.client";
 import { getTheme } from "@/utils/theme.server";
@@ -100,6 +101,7 @@ export default async function RootLayout({
             <ThemeSwitch userPreference={theme} />
           </div>
         </div>
+        {user ? <LogoutTimer /> : null}
       </Provider>
 
       <Toaster closeButton position="top-center" />

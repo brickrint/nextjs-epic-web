@@ -6,8 +6,6 @@ import { cache } from "react";
 
 import { env } from "@/env";
 
-import { logout } from "@/app/(auth)/actions";
-
 import { getSessionExpirationTime } from "./auth.server";
 
 type UserInfo = {
@@ -74,7 +72,7 @@ async function getSignedinUser() {
     return null;
   }
 
-  const user = await db.user.findUnique({
+  return db.user.findUnique({
     where: {
       id: userInfo.userId,
     },
@@ -89,12 +87,6 @@ async function getSignedinUser() {
       },
     },
   });
-
-  if (!user) {
-    await logout();
-  }
-
-  return user;
 }
 
 export const getOptionalUser = cache(getSignedinUser);
