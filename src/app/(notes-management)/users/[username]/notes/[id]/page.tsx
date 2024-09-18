@@ -56,7 +56,7 @@ export default async function NotePage({ params }: Readonly<PageProps>) {
       {isOwner ? (
         <div className={floatingToolbarClassName}>
           <span className="text-sm text-foreground/90 max-[524px]:hidden inline-flex items-center gap-1.5">
-            <ClockIcon name="clock" className="scale-125" />
+            <ClockIcon name="clock" className="scale-150" />
             {note.timeAgo} ago
           </span>
           <div className="grid flex-1 grid-cols-2 justify-end gap-2 min-[525px]:flex md:gap-4">

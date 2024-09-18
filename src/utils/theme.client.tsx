@@ -6,7 +6,7 @@ import { parseWithZod as parse } from "@conform-to/zod";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useFormState } from "react-dom";
 
-import { toggleTheme as toggleThemeAction } from "@/app/(notes-management)/[username]/notes/actions";
+import { toggleTheme as toggleThemeAction } from "@/app/(notes-management)/users/[username]/notes/actions";
 import { ErrorList } from "@/app/_components/forms";
 import { Input } from "@/app/_components/ui/input";
 
@@ -14,7 +14,7 @@ import { AuthenticityTokenInput } from "./csrf.client";
 import { type Theme, ThemeFormSchema } from "./theme.server";
 
 export function ThemeSwitch({ userPreference }: { userPreference?: Theme }) {
-  const [actionState, toggleTheme] = useFormState(toggleThemeAction, undefined);
+  const [, toggleTheme] = useFormState(toggleThemeAction, undefined);
 
   const [form, field] = useForm({
     id: "theme-switch",

@@ -6,6 +6,10 @@ import { cache } from "react";
 
 import { env } from "@/env";
 
+import { logout } from "@/app/(auth)/actions";
+
+import { getSessionExpirationTime } from "./auth.server";
+
 type UserInfo = {
   userId: string;
 };
@@ -17,8 +21,9 @@ const secret = new TextEncoder().encode(env.SESSION_SECRET);
 export async function createCookie(
   cookies: ReadonlyRequestCookies,
   userInfo: UserInfo,
+  remember = false,
 ) {
-  const expires = new Date(Date.now() + 2 * 60 * 60 * 1000);
+  const expires = getSessionExpirationTime();
 
   const value = await new jose.SignJWT(userInfo)
     .setProtectedHeader({ alg: "HS256" })
@@ -34,9 +39,13 @@ export async function createCookie(
     secure: env.NODE_ENV === "production",
     path: "/",
     sameSite: "lax",
-    expires,
+    expires: remember ? expires : undefined,
     httpOnly: true,
   });
+}
+
+export async function deleteCookie(cookies: ReadonlyRequestCookies) {
+  cookies.delete(tokenKey);
 }
 
 export async function getCookie(cookies: ReadonlyRequestCookies) {
@@ -61,13 +70,11 @@ export async function getCookie(cookies: ReadonlyRequestCookies) {
 async function getSignedinUser() {
   const userInfo = await getCookie(cookies());
 
-  console.log("getSignedinUser", userInfo);
-
   if (!userInfo?.userId) {
     return null;
   }
 
-  return db.user.findUnique({
+  const user = await db.user.findUnique({
     where: {
       id: userInfo.userId,
     },
@@ -82,6 +89,12 @@ async function getSignedinUser() {
       },
     },
   });
+
+  if (!user) {
+    await logout();
+  }
+
+  return user;
 }
 
 export const getOptionalUser = cache(getSignedinUser);

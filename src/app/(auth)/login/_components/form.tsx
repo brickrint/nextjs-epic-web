@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useFormState } from "react-dom";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 
-import { ErrorList, Field } from "@/app/_components/forms";
+import { CheckboxField, ErrorList, Field } from "@/app/_components/forms";
 import { StatusButton } from "@/app/_components/ui/status-button";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
 
@@ -49,7 +49,14 @@ export function Form() {
       />
 
       <div className="flex justify-between">
-        <div />
+        <CheckboxField
+          labelProps={{
+            htmlFor: fields.remember.id,
+            children: "Remember me",
+          }}
+          buttonProps={getInputProps(fields.remember, { type: "checkbox" })}
+          errors={fields.remember.errors}
+        />
         <div>
           <Link href="/forgot-password" className="text-body-xs font-semibold">
             Forgot password?

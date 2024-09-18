@@ -26,7 +26,7 @@ export function Form() {
 
   return (
     <form
-      className="mx-auto flex min-w-[368px] max-w-sm flex-col gap-4"
+      className="mx-auto min-w-[368px] max-w-sm"
       action={signup}
       {...getFormProps(form)}
     >
@@ -101,6 +101,14 @@ export function Form() {
           { type: "checkbox" },
         )}
         errors={fields.agreeToTermsOfServiceAndPrivacyPolicy.errors}
+      />
+      <CheckboxField
+        labelProps={{
+          htmlFor: fields.remember.id,
+          children: "Remember me",
+        }}
+        buttonProps={getInputProps(fields.remember, { type: "checkbox" })}
+        errors={fields.remember.errors}
       />
 
       <ErrorList errors={form.errors} id={form.errorId} />

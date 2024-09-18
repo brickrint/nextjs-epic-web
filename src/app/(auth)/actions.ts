@@ -8,10 +8,72 @@ import { z } from "zod";
 
 import { bcrypt } from "@/utils/auth.server";
 import { checkHoneypot } from "@/utils/honeypot.server";
-import { createCookie as createSessionCookie } from "@/utils/session.server";
+import {
+  createCookie as createSessionCookie,
+  deleteCookie,
+} from "@/utils/session.server";
 
 import { LoginFormSchema } from "./schema";
 import { SignupFormSchema } from "./schema";
+
+export async function signup(_prevState: unknown, formData: FormData) {
+  checkHoneypot(formData);
+  const submission = await parse(formData, {
+    schema: SignupFormSchema.superRefine(async (data, ctx) => {
+      const existingUser = await db.user.findUnique({
+        where: { username: data.username },
+        select: { id: true },
+      });
+      if (existingUser) {
+        ctx.addIssue({
+          path: ["username"],
+          code: z.ZodIssueCode.custom,
+          message: "A user already exists with this username",
+        });
+        return;
+      }
+    }).transform(async (data) => {
+      const { username, email, name, password } = data;
+
+      const user = await db.user.create({
+        select: { id: true },
+        data: {
+          email: email.toLowerCase(),
+          username: username.toLowerCase(),
+          name,
+          password: {
+            create: {
+              hash: await bcrypt.hash(password, 10),
+            },
+          },
+        },
+      });
+
+      return { ...data, user };
+    }),
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  if (!submission.value?.user) {
+    return submission.reply();
+  }
+
+  const { user, remember = false } = submission.value;
+
+  await createSessionCookie(
+    cookies(),
+    {
+      userId: user.id,
+    },
+    remember,
+  );
+
+  redirect("/");
+}
 
 export async function login(_prevState: unknown, formData: FormData) {
   checkHoneypot(formData);
@@ -56,68 +118,20 @@ export async function login(_prevState: unknown, formData: FormData) {
     return submission.reply();
   }
 
-  const { user } = submission.value;
+  const { user, remember = false } = submission.value;
 
-  await createSessionCookie(cookies(), {
-    userId: user.id,
-  });
+  await createSessionCookie(
+    cookies(),
+    {
+      userId: user.id,
+    },
+    remember,
+  );
 
   redirect("/");
 }
 
-export async function signup(_prevState: unknown, formData: FormData) {
-  checkHoneypot(formData);
-  const submission = await parse(formData, {
-    schema: SignupFormSchema.superRefine(async (data, ctx) => {
-      const existingUser = await db.user.findUnique({
-        where: { username: data.username },
-        select: { id: true },
-      });
-      if (existingUser) {
-        ctx.addIssue({
-          path: ["username"],
-          code: z.ZodIssueCode.custom,
-          message: "A user already exists with this username",
-        });
-        return;
-      }
-    }).transform(async (data) => {
-      // 🐨 retrieve the password they entered from data here as well
-      const { username, email, name, password } = data;
-
-      const user = await db.user.create({
-        select: { id: true },
-        data: {
-          email: email.toLowerCase(),
-          username: username.toLowerCase(),
-          name,
-          // 🐨 create a password here using bcrypt.hash (the async version)
-          password: {
-            create: {
-              hash: await bcrypt.hash(password, 10),
-            },
-          },
-        },
-      });
-
-      return { ...data, user };
-    }),
-    async: true,
-  });
-
-  if (submission.status !== "success") {
-    return submission.reply();
-  }
-
-  if (!submission.value?.user) {
-    return submission.reply();
-  }
-
-  const { user } = submission.value;
-
-  await createSessionCookie(cookies(), {
-    userId: user.id,
-  });
-
+export async function logout() {
+  await deleteCookie(cookies());
   redirect("/");
 }

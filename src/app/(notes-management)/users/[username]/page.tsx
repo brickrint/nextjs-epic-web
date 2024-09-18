@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { logout } from "@/app/(auth)/actions";
 import { Spacer } from "@/app/_components/spacer";
 import { Button } from "@/app/_components/ui/button";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
@@ -49,11 +50,16 @@ export default async function UserPage({ params }: PageProps) {
             Joined {userJoinedDisplay}
           </p>
           {isLoggedInUser ? (
-            <form className="mt-3">
+            <form className="mt-3" action={logout}>
               <AuthenticityTokenInput />
 
-              <Button type="submit" variant="link" size="pill">
-                <ExitIcon name="exit" className="scale-125 max-md:scale-150" />
+              <Button
+                type="submit"
+                variant="link"
+                size="pill"
+                className="flex items-center gap-2"
+              >
+                <ExitIcon name="exit" className="scale-150" />
                 Logout
               </Button>
             </form>

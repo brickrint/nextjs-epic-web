@@ -10,6 +10,7 @@ import {
 export const LoginFormSchema = z.object({
   username: UsernameSchema,
   password: PasswordSchema,
+  remember: z.boolean().optional(),
 });
 
 export const SignupFormSchema = z
@@ -23,6 +24,7 @@ export const SignupFormSchema = z
       required_error:
         "You must agree to the terms of service and privacy policy",
     }),
+    remember: z.boolean().optional(),
   })
   .superRefine(({ confirmPassword, password }, ctx) => {
     if (confirmPassword !== password) {

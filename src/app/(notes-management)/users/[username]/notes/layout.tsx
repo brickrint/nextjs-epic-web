@@ -59,7 +59,7 @@ export default async function NotesRoute({
                     )}
                     activeClassName="bg-accent"
                   >
-                    <PlusIcon name="plus" width={20} height={20} />
+                    <PlusIcon name="plus" className="scale-150" />
                     New Note
                   </NavLink>
                 </li>
