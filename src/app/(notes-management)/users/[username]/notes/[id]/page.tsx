@@ -9,7 +9,8 @@ import { Button } from "@/app/_components/ui/button";
 import { StatusButton } from "@/app/_components/ui/status-button";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
 import { getNoteImgSrc } from "@/utils/misc.server";
-import { getUserId } from "@/utils/session.server";
+import { userHasPermission } from "@/utils/permissions";
+import { getUser } from "@/utils/session.server";
 
 import { getNote } from "../../db";
 import { type PageProps } from "../../page";
@@ -23,25 +24,14 @@ export default async function NotePage({ params }: Readonly<PageProps>) {
     username: params.username,
   });
 
-  const userId = await getUserId();
+  const user = await getUser();
 
-  const isOwner = note.ownerId === userId;
+  const isOwner = note.ownerId === user.id;
 
-  const permission = userId
-    ? await db.permission.findFirst({
-        select: {
-          id: true,
-        },
-        where: {
-          role: { some: { users: { some: { id: userId } } } },
-          entity: "note",
-          action: "update",
-          access: isOwner ? "own" : "any",
-        },
-      })
-    : null;
-
-  const canDelete = Boolean(permission?.id);
+  const canDelete = userHasPermission(
+    user,
+    isOwner ? `delete:note:own` : `delete:note:any`,
+  );
   const displayBar = canDelete || isOwner;
 
   return (

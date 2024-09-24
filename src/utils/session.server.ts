@@ -90,6 +90,16 @@ export async function getUserId() {
   return user.id;
 }
 
+export async function requireUserId() {
+  const userId = await getUserId();
+
+  if (!userId) {
+    redirect("/api/logout");
+  }
+
+  return userId;
+}
+
 async function getSignedinUser() {
   const userId = await getUserId();
 
@@ -109,6 +119,12 @@ async function getSignedinUser() {
       image: {
         select: {
           id: true,
+        },
+      },
+      roles: {
+        select: {
+          permissions: { select: { action: true, access: true, entity: true } },
+          name: true,
         },
       },
     },

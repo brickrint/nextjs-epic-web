@@ -9,6 +9,7 @@ import { RedirectType, redirect } from "next/navigation";
 
 import { checkHoneypot } from "@/utils/honeypot.server";
 import { invariantError } from "@/utils/misc.server";
+import { requireUserWithPermission } from "@/utils/permissions";
 import { getUser } from "@/utils/session.server";
 import { ThemeFormSchema, setTheme } from "@/utils/theme.server";
 import {
@@ -142,28 +143,9 @@ export async function remove(
     RedirectType.replace,
   );
 
-  const permission = note.owner.id
-    ? await db.permission.findFirst({
-        select: {
-          id: true,
-        },
-        where: {
-          role: { some: { users: { some: { id: note.owner.id } } } },
-          entity: "note",
-          action: "delete",
-          access: note.owner.id === username ? "own" : "any",
-        },
-      })
-    : null;
-
-  invariantToastRedirect(
-    permission,
-    {
-      type: "error",
-      title: "Unauthorized",
-      description: "You do not have permission to delete this note",
-    },
-    `/users/${username}/notes`,
+  const isOwner = note.owner.username === username;
+  await requireUserWithPermission(
+    isOwner ? `delete:note:own` : `delete:note:any`,
   );
 
   await db.note.delete({ where: { id: noteId } });

@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import { BackpackIcon } from "@radix-ui/react-icons";
 import { type Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import Image from "next/image";
@@ -9,6 +10,7 @@ import { Toaster } from "sonner";
 import { getCsrfToken } from "@/utils/csrf.server";
 import { honeypot } from "@/utils/honeypot.server";
 import { getUserImgSrc } from "@/utils/misc.server";
+import { userHasRole } from "@/utils/permissions";
 import { LogoutTimer } from "@/utils/session.client";
 import { getOptionalUser } from "@/utils/session.server";
 import { ThemeSwitch } from "@/utils/theme.client";
@@ -38,6 +40,7 @@ export default async function RootLayout({
   const csrfToken = getCsrfToken(headersList);
   const theme = getTheme(cookiesList);
   const toast = parseToastHeaders(headersList);
+  const userIsAdmin = userHasRole(user, "admin");
 
   return (
     <Document theme={theme}>
@@ -71,6 +74,17 @@ export default async function RootLayout({
                     </span>
                   </Link>
                 </Button>
+                {userIsAdmin ? (
+                  <Button asChild variant="secondary">
+                    <Link
+                      href="/admin"
+                      className="flex place-items-center gap-2"
+                    >
+                      <BackpackIcon name="backpack" />
+                      <span className="hidden sm:block">Admin</span>
+                    </Link>
+                  </Button>
+                ) : null}
               </div>
             ) : (
               <Button asChild variant="default" size="sm">
