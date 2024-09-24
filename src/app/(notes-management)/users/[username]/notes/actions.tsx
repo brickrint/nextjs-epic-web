@@ -3,7 +3,7 @@
 import { db } from "@/server/db";
 import { parseWithZod as parse } from "@conform-to/zod";
 import { createId as cuid } from "@paralleldrive/cuid2";
-import type { Note } from "@prisma/client";
+import type { Note, User } from "@prisma/client";
 import { cookies } from "next/headers";
 import { RedirectType, redirect } from "next/navigation";
 
@@ -11,11 +11,14 @@ import { checkHoneypot } from "@/utils/honeypot.server";
 import { invariantError } from "@/utils/misc.server";
 import { getUser } from "@/utils/session.server";
 import { ThemeFormSchema, setTheme } from "@/utils/theme.server";
-import { createCookie as createToastCookie } from "@/utils/toast.server";
+import {
+  createToastRedirect,
+  invariantToastRedirect,
+} from "@/utils/toast.server";
 
 import { NoteEditorSchema, imageHasFile, imageHasId } from "./schema";
 
-type NoteActionArgs = { noteId: Note["id"] };
+type NoteActionArgs = { noteId: Note["id"]; username: User["username"] };
 
 async function createEdit(
   formData: FormData,
@@ -115,25 +118,65 @@ export async function create(_: unknown, formData: FormData) {
   return createEdit(formData);
 }
 
-export async function remove({ noteId }: NoteActionArgs, formData: FormData) {
+export async function remove(
+  { noteId, username }: NoteActionArgs,
+  formData: FormData,
+) {
   const intent = formData.get("intent");
 
   invariantError(intent === "delete", "Invalid intent");
 
-  const deletedNote = await db.note.delete({
-    select: { owner: { select: { username: true } } },
-    where: {
-      id: noteId,
+  const note = await db.note.findFirst({
+    select: { owner: { select: { username: true, id: true } } },
+    where: { id: noteId },
+  });
+
+  invariantToastRedirect(
+    note,
+    {
+      type: "error",
+      title: "Note not found",
+      description: "The note you are trying to delete does not exist",
     },
-  });
+    `/users/${username}/notes`,
+    RedirectType.replace,
+  );
 
-  createToastCookie(cookies(), {
-    type: "success",
-    title: "Note deleted",
-    description: "Your note has been deleted",
-  });
+  const permission = note.owner.id
+    ? await db.permission.findFirst({
+        select: {
+          id: true,
+        },
+        where: {
+          role: { some: { users: { some: { id: note.owner.id } } } },
+          entity: "note",
+          action: "delete",
+          access: note.owner.id === username ? "own" : "any",
+        },
+      })
+    : null;
 
-  redirect(`/users/${deletedNote.owner.username}/notes`, RedirectType.replace);
+  invariantToastRedirect(
+    permission,
+    {
+      type: "error",
+      title: "Unauthorized",
+      description: "You do not have permission to delete this note",
+    },
+    `/users/${username}/notes`,
+  );
+
+  await db.note.delete({ where: { id: noteId } });
+
+  createToastRedirect(
+    {
+      type: "success",
+      title: "Note deleted",
+      description: "Your note has been deleted",
+    },
+    `/users/${note.owner.username}/notes`,
+    RedirectType.replace,
+  );
 }
 
 export async function toggleTheme(_: unknown, formData: FormData) {

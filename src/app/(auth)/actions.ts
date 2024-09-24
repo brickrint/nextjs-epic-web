@@ -112,5 +112,6 @@ export async function login(_prevState: unknown, formData: FormData) {
 
 export async function logout() {
   deleteCookie(cookies());
+  revalidatePath("/");
   redirect("/");
 }

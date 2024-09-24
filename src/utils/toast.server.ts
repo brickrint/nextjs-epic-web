@@ -1,5 +1,7 @@
 import type { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { cookies } from "next/headers";
+import { RedirectType, redirect } from "next/navigation";
 import type { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -7,7 +9,7 @@ import { env } from "@/env";
 
 const ToastSchema = z.object({
   id: z.string().optional(),
-  type: z.enum(["success", "message"]),
+  type: z.enum(["success", "message", "error"]),
   title: z.string(),
   description: z.string().optional(),
 });
@@ -53,4 +55,25 @@ export function parseHeaders(headers: ReadonlyHeaders) {
   }
 
   return toast.data;
+}
+
+export function createToastRedirect(
+  toast: Toast,
+  location: string,
+  type: RedirectType = RedirectType.push,
+) {
+  createCookie(cookies(), toast);
+  return redirect(location, type);
+}
+
+export function invariantToastRedirect(
+  condition: unknown,
+  toast: Toast,
+  location: string,
+  type: RedirectType = RedirectType.push,
+): asserts condition {
+  if (!condition) {
+    createCookie(cookies(), toast);
+    redirect(location, type);
+  }
 }

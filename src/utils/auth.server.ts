@@ -38,6 +38,7 @@ export async function signup({
           hash,
         },
       },
+      roles: { connect: { name: "user" } },
     },
   });
 

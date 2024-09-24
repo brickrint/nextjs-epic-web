@@ -2,16 +2,16 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "sqlite"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
+  provider = "sqlite"
+  // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+  // Further reading:
+  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  url      = env("DATABASE_URL")
 }
 
 // model Post {
@@ -55,74 +55,102 @@ datasource db {
 // }
 
 model User {
-    id            String    @id @default(cuid())
-    email         String   @unique
-    username      String   @unique
-    name          String?
+  id            String    @id @default(cuid())
+  email         String   @unique
+  username      String   @unique
+  name          String?
 
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
-    // emailVerified DateTime?
-    // image         String?
-    // accounts      Account[]
-    // sessions      Session[]
-    // posts         Post[]
-    notes         Note[]
-    image         UserImage?
-    password      Password?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  // emailVerified DateTime?
+  // image         String?
+  // accounts      Account[]
+  // sessions      Session[]
+  // posts         Post[]
+  notes         Note[]
+  image         UserImage?
+  password      Password?
+  roles         Role[]
 }
 
 model Note {
-    id      String @id @default(cuid())
+  id      String @id @default(cuid())
 
-    title String
-    content String
+  title String
+  content String
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    
-    owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-    ownerId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  ownerId String
 
-    images NoteImage[]
+  images NoteImage[]
 
-    @@index([ownerId])
-    @@index([ownerId, updatedAt])
+  @@index([ownerId])
+  @@index([ownerId, updatedAt])
 }
 
 model UserImage {
-    id String @id @default(cuid())
-    altText String?
-    contentType String
-    blob Bytes
+  id String @id @default(cuid())
+  altText String?
+  contentType String
+  blob Bytes
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-    userId String @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @unique
 }
 
 model NoteImage {
-    id String @id @default(cuid())
-    altText String?
-    contentType String
-    blob Bytes
+  id String @id @default(cuid())
+  altText String?
+  contentType String
+  blob Bytes
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    note Note @relation(fields: [noteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-    noteId String
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  noteId String
 
-    @@index([noteId])
+  @@index([noteId])
 }
 
 model Password {
-    hash String
+  hash String
 
-    userId String @unique
-    used User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  userId String @unique
+  used User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model Permission {
+  id          String @id @default(cuid())
+  action      String // create | read | update | delete
+  entity      String // user | note
+  access      String // own | any
+  description String @default("")
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  role Role[]
+
+  @@unique([action, entity, access])
+}
+
+model Role {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String @default("")
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  permissions Permission[]
+  users       User[]
 }
 
 // model VerificationToken {

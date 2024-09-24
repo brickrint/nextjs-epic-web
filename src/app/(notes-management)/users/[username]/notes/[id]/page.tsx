@@ -1,3 +1,4 @@
+import { db } from "@/server/db";
 import { ClockIcon, Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
 import { type Metadata } from "next";
 import Image from "next/image";
@@ -8,7 +9,7 @@ import { Button } from "@/app/_components/ui/button";
 import { StatusButton } from "@/app/_components/ui/status-button";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
 import { getNoteImgSrc } from "@/utils/misc.server";
-import { getOptionalUser } from "@/utils/session.server";
+import { getUserId } from "@/utils/session.server";
 
 import { getNote } from "../../db";
 import { type PageProps } from "../../page";
@@ -22,14 +23,31 @@ export default async function NotePage({ params }: Readonly<PageProps>) {
     username: params.username,
   });
 
-  const user = await getOptionalUser();
+  const userId = await getUserId();
 
-  const isOwner = note.ownerId === user?.id;
+  const isOwner = note.ownerId === userId;
+
+  const permission = userId
+    ? await db.permission.findFirst({
+        select: {
+          id: true,
+        },
+        where: {
+          role: { some: { users: { some: { id: userId } } } },
+          entity: "note",
+          action: "update",
+          access: isOwner ? "own" : "any",
+        },
+      })
+    : null;
+
+  const canDelete = Boolean(permission?.id);
+  const displayBar = canDelete || isOwner;
 
   return (
     <div className="absolute inset-0 flex flex-col px-10">
       <h2 className="mb-2 pt-12 text-h2 lg:mb-6">{note.title}</h2>
-      <div className={`${isOwner ? "pb-24" : "pb-12"} overflow-y-auto`}>
+      <div className={`${displayBar ? "pb-24" : "pb-12"} overflow-y-auto`}>
         <ul className="flex flex-wrap gap-5 py-5">
           {note.images.map((image) => {
             const src = getNoteImgSrc(image.id);
@@ -53,31 +71,33 @@ export default async function NotePage({ params }: Readonly<PageProps>) {
       <p className="whitespace-break-spaces text-sm md:text-lg">
         {note.content}
       </p>
-      {isOwner ? (
+      {displayBar ? (
         <div className={floatingToolbarClassName}>
           <span className="text-sm text-foreground/90 max-[524px]:hidden inline-flex items-center gap-1.5">
             <ClockIcon name="clock" className="scale-150" />
             {note.timeAgo} ago
           </span>
           <div className="grid flex-1 grid-cols-2 justify-end gap-2 min-[525px]:flex md:gap-4">
-            <form action={deleteNote}>
-              <AuthenticityTokenInput />
-              <StatusButton
-                type="submit"
-                variant="destructive"
-                name="intent"
-                value="delete"
-                className="inline-flex items-center gap-1.5"
-              >
-                <span className="inline-flex items-center gap-1.5">
-                  <TrashIcon
-                    name="trash"
-                    className="scale-125 max-md:scale-150"
-                  />
-                  <span>Delete</span>
-                </span>
-              </StatusButton>
-            </form>
+            {canDelete ? (
+              <form action={deleteNote}>
+                <AuthenticityTokenInput />
+                <StatusButton
+                  type="submit"
+                  variant="destructive"
+                  name="intent"
+                  value="delete"
+                  className="inline-flex items-center gap-1.5"
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    <TrashIcon
+                      name="trash"
+                      className="scale-125 max-md:scale-150"
+                    />
+                    <span>Delete</span>
+                  </span>
+                </StatusButton>
+              </form>
+            ) : null}
             <Button asChild>
               <Link href={`${note.id}/edit`}>
                 <span className="inline-flex items-center gap-1.5">

@@ -1,8 +1,8 @@
 import { db } from "@/server/db";
 import * as jose from "jose";
-import { pathname, searchParams } from "next-extra/pathname";
+import { pathname } from "next-extra/pathname";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
@@ -48,8 +48,8 @@ export function deleteCookie(cookies: ReadonlyRequestCookies) {
   cookies.delete(tokenKey);
 }
 
-export async function getCookie(cookies: ReadonlyRequestCookies) {
-  const signedValue = cookies.get(tokenKey);
+async function verify() {
+  const signedValue = cookies().get(tokenKey);
 
   if (!signedValue) {
     return null;
@@ -63,12 +63,35 @@ export async function getCookie(cookies: ReadonlyRequestCookies) {
     return payload.userId;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_) {
-    return null;
+    redirect("/api/logout");
   }
 }
 
+export async function getUserId() {
+  const cookieValue = await verify();
+
+  if (!cookieValue) {
+    return null;
+  }
+
+  const user = await db.user.findUnique({
+    where: {
+      id: cookieValue,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!user) {
+    redirect("/api/logout");
+  }
+
+  return user.id;
+}
+
 async function getSignedinUser() {
-  const userId = await getCookie(cookies());
+  const userId = await getUserId();
 
   if (!userId) {
     return null;
@@ -90,10 +113,6 @@ async function getSignedinUser() {
       },
     },
   });
-
-  if (!user) {
-    redirect("/api/logout");
-  }
 
   return user;
 }

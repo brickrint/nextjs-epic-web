@@ -3,22 +3,19 @@
 import { db } from "@/server/db";
 import { parseWithZod as parse } from "@conform-to/zod";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { checkHoneypot } from "@/utils/honeypot.server";
-import { invariantError } from "@/utils/misc.server";
-import { deleteCookie, getCookie } from "@/utils/session.server";
+import { getUserId } from "@/utils/session.server";
 
+import { logout } from "../(auth)/actions";
 import { PhotoFormSchema, ProfileFormSchema } from "./schema";
 
 export async function profileUpdateAction(_: unknown, formData: FormData) {
   checkHoneypot(formData);
 
-  const userId = await getCookie(cookies());
-
-  invariantError(userId, "Invalid user");
+  const userId = await getUserId();
 
   const submission = await parse(formData, {
     async: true,
@@ -70,25 +67,17 @@ export async function profileUpdateAction(_: unknown, formData: FormData) {
 }
 
 export async function deleteDataAction() {
-  const cookiesList = cookies();
-  const userId = await getCookie(cookiesList);
-
-  invariantError(userId, "Invalid user");
+  const userId = await getUserId();
 
   await db.user.delete({ where: { id: userId } });
 
-  deleteCookie(cookiesList);
-
-  revalidatePath("/");
-  redirect("/");
+  await logout();
 }
 
 export async function updateProfilePhoto(_: unknown, formData: FormData) {
   checkHoneypot(formData);
 
-  const userId = await getCookie(cookies());
-
-  invariantError(userId, "Invalid user");
+  const userId = await getUserId();
 
   const intent = formData.get("intent");
 
