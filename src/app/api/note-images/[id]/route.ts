@@ -27,13 +27,3 @@ export async function GET(
     },
   });
 }
-
-export async function POST(
-  request: NextRequest,
-  params: { params: { id: string } },
-) {
-  console.log("request", request);
-  console.log("params", params);
-
-  return NextResponse.redirect(request.headers.get("referer")!);
-}

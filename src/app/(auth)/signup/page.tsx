@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 
 import { Spacer } from "@/app/_components/spacer";
+import { requireAnonymous } from "@/utils/session.server";
 
 import { Form } from "./_components/form";
 
-export default function SignupPage() {
+export default async function SignupPage() {
+  await requireAnonymous();
+
   return (
     <div className="container flex min-h-full flex-col justify-center pb-32 pt-20">
       <div className="mx-auto w-full max-w-lg">

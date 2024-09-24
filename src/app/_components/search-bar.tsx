@@ -23,7 +23,7 @@ export const SharedSearchBar = ({
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const [_, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const handleFormChange = useDebounce((form: HTMLFormElement) => {
     startTransition(() => {

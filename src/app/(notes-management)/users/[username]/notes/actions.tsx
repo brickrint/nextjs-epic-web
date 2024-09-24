@@ -21,6 +21,8 @@ async function createEdit(
   formData: FormData,
   { noteId }: Partial<NoteActionArgs> = {},
 ) {
+  const user = await getUser();
+
   const submission = await parse(formData, {
     schema: NoteEditorSchema.transform(async ({ images = [], ...data }) => {
       return {
@@ -67,8 +69,6 @@ async function createEdit(
     imageUpdates = [],
     newImages = [],
   } = submission.value;
-
-  const user = await getUser();
 
   const updatedNote = await db.note.upsert({
     select: { id: true, owner: { select: { username: true } } },

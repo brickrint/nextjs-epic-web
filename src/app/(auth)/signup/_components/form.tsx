@@ -2,6 +2,7 @@
 
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod as parse } from "@conform-to/zod";
+import { useSearchParams } from "next/navigation";
 import { useFormState } from "react-dom";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 
@@ -13,11 +14,16 @@ import { signup as signupAction } from "../../actions";
 import { SignupFormSchema } from "../../schema";
 
 export function Form() {
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
+
   const [actionState, signup] = useFormState(signupAction, undefined);
+
   const [form, fields] = useForm({
     id: "signup-form",
     constraint: getZodConstraint(SignupFormSchema),
     lastResult: actionState,
+    defaultValue: { redirectTo },
     onValidate({ formData }) {
       return parse(formData, { schema: SignupFormSchema });
     },
@@ -110,6 +116,8 @@ export function Form() {
         buttonProps={getInputProps(fields.remember, { type: "checkbox" })}
         errors={fields.remember.errors}
       />
+
+      <input {...getInputProps(fields.redirectTo, { type: "hidden" })} />
 
       <ErrorList errors={form.errors} id={form.errorId} />
 

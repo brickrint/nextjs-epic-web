@@ -1,7 +1,9 @@
 import { db } from "@/server/db";
 import * as jose from "jose";
+import { pathname, searchParams } from "next-extra/pathname";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { cache } from "react";
 
 import { env } from "@/env";
@@ -42,7 +44,7 @@ export async function createCookie(
   });
 }
 
-export async function deleteCookie(cookies: ReadonlyRequestCookies) {
+export function deleteCookie(cookies: ReadonlyRequestCookies) {
   cookies.delete(tokenKey);
 }
 
@@ -58,7 +60,7 @@ export async function getCookie(cookies: ReadonlyRequestCookies) {
       signedValue?.value,
       secret,
     );
-    return payload;
+    return payload.userId;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_) {
     return null;
@@ -66,20 +68,21 @@ export async function getCookie(cookies: ReadonlyRequestCookies) {
 }
 
 async function getSignedinUser() {
-  const userInfo = await getCookie(cookies());
+  const userId = await getCookie(cookies());
 
-  if (!userInfo?.userId) {
+  if (!userId) {
     return null;
   }
 
-  return db.user.findUnique({
+  const user = await db.user.findUnique({
     where: {
-      id: userInfo.userId,
+      id: userId,
     },
     select: {
       id: true,
       name: true,
       username: true,
+      email: true,
       image: {
         select: {
           id: true,
@@ -87,6 +90,12 @@ async function getSignedinUser() {
       },
     },
   });
+
+  if (!user) {
+    redirect("/api/logout");
+  }
+
+  return user;
 }
 
 export const getOptionalUser = cache(getSignedinUser);
@@ -95,10 +104,19 @@ export const getUser = cache(async () => {
   const maybeUser = await getSignedinUser();
 
   if (!maybeUser) {
-    throw new Error(
-      "No user found in root loader, but user is required by useUser. If user is optional, try useOptionalUser instead.",
-    );
+    const redirectPath = pathname();
+    const seachParams = new URLSearchParams({ redirect: redirectPath });
+
+    redirect(`/login?${seachParams.toString()}`);
   }
 
   return maybeUser;
 });
+
+export async function requireAnonymous() {
+  const user = await getOptionalUser();
+
+  if (user) {
+    redirect("/");
+  }
+}

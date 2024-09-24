@@ -67,9 +67,14 @@ export default async function UserPage({ params }: PageProps) {
           <div className="mt-10 flex gap-4">
             <Button asChild>
               <Link href={`${params.username}/notes`}>
-                {userDisplayName}`s notes
+                {isLoggedInUser ? "My" : `${userDisplayName}\`s`} notes
               </Link>
             </Button>
+            {isLoggedInUser ? (
+              <Button asChild>
+                <Link href="/settings/profile">Edit Profile</Link>
+              </Button>
+            ) : null}
           </div>
         </div>
       </div>

@@ -7,7 +7,7 @@ import { getUserImgSrc } from "@/utils/misc.server";
 import { getOptionalUser } from "@/utils/session.server";
 import { cn } from "@/utils/styles";
 
-import { NavLink } from "../_components/link";
+import { NavLink } from "../_components/Link";
 import { getUser } from "../db";
 import { type PageProps } from "../page";
 

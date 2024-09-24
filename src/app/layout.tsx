@@ -97,7 +97,7 @@ export default async function RootLayout({
             <div className="font-bold">notes</div>
           </Link>
           <div className="flex items-center gap-2">
-            <p>Built with ♥️ by {username}</p>
+            <p>Built with ❤️ by {username}</p>
             <ThemeSwitch userPreference={theme} />
           </div>
         </div>

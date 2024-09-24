@@ -2,11 +2,12 @@
 
 import { db } from "@/server/db";
 import { parseWithZod as parse } from "@conform-to/zod";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { bcrypt } from "@/utils/auth.server";
+import { login as loginUser, signup as signupUser } from "@/utils/auth.server";
 import { checkHoneypot } from "@/utils/honeypot.server";
 import {
   createCookie as createSessionCookie,
@@ -35,19 +36,7 @@ export async function signup(_prevState: unknown, formData: FormData) {
     }).transform(async (data) => {
       const { username, email, name, password } = data;
 
-      const user = await db.user.create({
-        select: { id: true },
-        data: {
-          email: email.toLowerCase(),
-          username: username.toLowerCase(),
-          name,
-          password: {
-            create: {
-              hash: await bcrypt.hash(password, 10),
-            },
-          },
-        },
-      });
+      const user = await signupUser({ username, email, name, password });
 
       return { ...data, user };
     }),
@@ -62,7 +51,7 @@ export async function signup(_prevState: unknown, formData: FormData) {
     return submission.reply();
   }
 
-  const { user, remember = false } = submission.value;
+  const { user, remember = false, redirectTo = "/" } = submission.value;
 
   await createSessionCookie(
     cookies(),
@@ -72,7 +61,8 @@ export async function signup(_prevState: unknown, formData: FormData) {
     remember,
   );
 
-  redirect("/");
+  revalidatePath("/");
+  redirect(redirectTo);
 }
 
 export async function login(_prevState: unknown, formData: FormData) {
@@ -81,11 +71,12 @@ export async function login(_prevState: unknown, formData: FormData) {
   const submission = await parse(formData, {
     schema() {
       return LoginFormSchema.transform(async (data, ctx) => {
-        const userWithPassword = await db.user.findUnique({
-          select: { id: true, password: { select: { hash: true } } },
-          where: { username: data.username },
+        const user = await loginUser({
+          username: data.username,
+          password: data.password,
         });
-        if (!userWithPassword?.password) {
+
+        if (!user) {
           ctx.addIssue({
             code: "custom",
             message: "Invalid username or password",
@@ -93,20 +84,7 @@ export async function login(_prevState: unknown, formData: FormData) {
           return z.NEVER;
         }
 
-        const isVerified = await bcrypt.compare(
-          data.password,
-          userWithPassword.password.hash,
-        );
-
-        if (!isVerified) {
-          ctx.addIssue({
-            code: "custom",
-            message: "Invalid username or password",
-          });
-          return z.NEVER;
-        }
-
-        return { ...data, user: { id: userWithPassword.id } };
+        return { ...data, user };
       });
     },
     async: true,
@@ -118,7 +96,7 @@ export async function login(_prevState: unknown, formData: FormData) {
     return submission.reply();
   }
 
-  const { user, remember = false } = submission.value;
+  const { user, remember = false, redirectTo = "/" } = submission.value;
 
   await createSessionCookie(
     cookies(),
@@ -128,10 +106,11 @@ export async function login(_prevState: unknown, formData: FormData) {
     remember,
   );
 
-  redirect("/");
+  revalidatePath("/");
+  redirect(redirectTo);
 }
 
 export async function logout() {
-  await deleteCookie(cookies());
+  deleteCookie(cookies());
   redirect("/");
 }

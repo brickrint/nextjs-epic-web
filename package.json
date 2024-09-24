@@ -51,6 +51,7 @@
     "msw": "^2.3.5",
     "next": "^14.2.5",
     "next-auth": "^4.24.7",
+    "next-extra": "^0.5.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "remix-utils": "^7.6.0",
