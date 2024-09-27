@@ -143,6 +143,15 @@ async function getSignedinUser() {
           name: true,
         },
       },
+      _count: {
+        select: {
+          sessions: {
+            where: {
+              expirationDate: { gt: new Date() },
+            },
+          },
+        },
+      },
     },
   });
 
