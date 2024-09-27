@@ -7,11 +7,16 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { login as loginUser, signup as signupUser } from "@/utils/auth.server";
+import {
+  login as loginUser,
+  logout as logoutUser,
+  signup as signupUser,
+} from "@/utils/auth.server";
 import { checkHoneypot } from "@/utils/honeypot.server";
 import {
   createCookie as createSessionCookie,
   deleteCookie,
+  getCookieSessionId,
 } from "@/utils/session.server";
 
 import { LoginFormSchema } from "./schema";
@@ -36,9 +41,9 @@ export async function signup(_prevState: unknown, formData: FormData) {
     }).transform(async (data) => {
       const { username, email, name, password } = data;
 
-      const user = await signupUser({ username, email, name, password });
+      const session = await signupUser({ username, email, name, password });
 
-      return { ...data, user };
+      return { ...data, session };
     }),
     async: true,
   });
@@ -47,16 +52,17 @@ export async function signup(_prevState: unknown, formData: FormData) {
     return submission.reply();
   }
 
-  if (!submission.value?.user) {
+  if (!submission.value?.session) {
     return submission.reply();
   }
 
-  const { user, remember = false, redirectTo = "/" } = submission.value;
+  const { session, remember = false, redirectTo = "/" } = submission.value;
 
   await createSessionCookie(
     cookies(),
     {
-      userId: user.id,
+      id: session.id,
+      expirationDate: session.expirationDate,
     },
     remember,
   );
@@ -71,12 +77,12 @@ export async function login(_prevState: unknown, formData: FormData) {
   const submission = await parse(formData, {
     schema() {
       return LoginFormSchema.transform(async (data, ctx) => {
-        const user = await loginUser({
+        const session = await loginUser({
           username: data.username,
           password: data.password,
         });
 
-        if (!user) {
+        if (!session) {
           ctx.addIssue({
             code: "custom",
             message: "Invalid username or password",
@@ -84,7 +90,7 @@ export async function login(_prevState: unknown, formData: FormData) {
           return z.NEVER;
         }
 
-        return { ...data, user };
+        return { ...data, session };
       });
     },
     async: true,
@@ -96,12 +102,13 @@ export async function login(_prevState: unknown, formData: FormData) {
     return submission.reply();
   }
 
-  const { user, remember = false, redirectTo = "/" } = submission.value;
+  const { session, remember = false, redirectTo = "/" } = submission.value;
 
   await createSessionCookie(
     cookies(),
     {
-      userId: user.id,
+      id: session.id,
+      expirationDate: session.expirationDate,
     },
     remember,
   );
@@ -111,6 +118,10 @@ export async function login(_prevState: unknown, formData: FormData) {
 }
 
 export async function logout() {
+  const session = await getCookieSessionId();
+  if (session) {
+    void logoutUser(session);
+  }
   deleteCookie(cookies());
   revalidatePath("/");
   redirect("/");

@@ -1,3 +1,4 @@
+import { db } from "@/server/db";
 import {
   CameraIcon, // DotsHorizontalIcon,
   DownloadIcon,
@@ -9,10 +10,14 @@ import { Button } from "@/app/_components/ui/button";
 import { getUserImgSrc } from "@/utils/misc.server";
 import { getUser } from "@/utils/session.server";
 
-import { DeleteData, UpdateProfile } from "./_components/form";
+import { DeleteData, SignOutSessions, UpdateProfile } from "./_components/form";
 
 export default async function Page() {
   const user = await getUser();
+
+  const sessionsCount = await db.session.count({
+    where: { userId: user.id },
+  });
 
   return (
     <div className="flex flex-col gap-12">
@@ -67,6 +72,7 @@ export default async function Page() {
             Download your data
           </a>
         </div>
+        <SignOutSessions userId={user.id} sessionsCount={sessionsCount} />
         <DeleteData />
       </div>
     </div>

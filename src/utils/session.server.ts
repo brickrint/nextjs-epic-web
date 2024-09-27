@@ -1,4 +1,5 @@
 import { db } from "@/server/db";
+import type { Session } from "@prisma/client";
 import * as jose from "jose";
 import { pathname } from "next-extra/pathname";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
@@ -10,22 +11,20 @@ import { env } from "@/env";
 
 import { getSessionExpirationTime } from "./auth.server";
 
-type UserInfo = {
-  userId: string;
-};
+type SessionInfo = Pick<Session, "id" | "expirationDate">;
 
-const tokenKey = "en_session";
+const tokenKey = "enSessionKey";
 
 const secret = new TextEncoder().encode(env.SESSION_SECRET);
 
 export async function createCookie(
   cookies: ReadonlyRequestCookies,
-  userInfo: UserInfo,
+  sessionInfo: SessionInfo,
   remember = false,
 ) {
   const expires = getSessionExpirationTime();
 
-  const value = await new jose.SignJWT(userInfo)
+  const value = await new jose.SignJWT(sessionInfo)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setIssuer("urn:example:issuer")
@@ -48,7 +47,7 @@ export function deleteCookie(cookies: ReadonlyRequestCookies) {
   cookies.delete(tokenKey);
 }
 
-async function verify() {
+export async function getCookieSessionId() {
   const signedValue = cookies().get(tokenKey);
 
   if (!signedValue) {
@@ -56,38 +55,55 @@ async function verify() {
   }
 
   try {
-    const { payload } = await jose.jwtVerify<UserInfo>(
+    const { payload } = await jose.jwtVerify<SessionInfo>(
       signedValue?.value,
       secret,
     );
-    return payload.userId;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (_) {
+    return payload.id;
+  } catch {
     redirect("/api/logout");
   }
 }
 
-export async function getUserId() {
-  const cookieValue = await verify();
+export async function getSession() {
+  const cookieValue = await getCookieSessionId();
 
   if (!cookieValue) {
     return null;
   }
 
-  const user = await db.user.findUnique({
-    where: {
-      id: cookieValue,
-    },
+  const session = await db.session.findUnique({
     select: {
       id: true,
+      user: { select: { id: true } },
+    },
+    where: {
+      id: cookieValue,
+      expirationDate: { gt: new Date() },
     },
   });
 
-  if (!user) {
+  if (!session) {
     redirect("/api/logout");
   }
 
-  return user.id;
+  return session;
+}
+
+export async function getSessionId() {
+  const session = await getSession();
+
+  if (!session) return null;
+
+  return session.id;
+}
+
+export async function getUserId() {
+  const session = await getSession();
+
+  if (!session) return null;
+
+  return session.user.id;
 }
 
 export async function requireUserId() {

@@ -3,10 +3,14 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod as parse } from "@conform-to/zod";
 import type { User } from "@prisma/client";
-import { TrashIcon } from "@radix-ui/react-icons";
+import { AvatarIcon, TrashIcon } from "@radix-ui/react-icons";
 import { useFormState } from "react-dom";
 
-import { deleteDataAction, profileUpdateAction } from "@/app/(profile)/actions";
+import {
+  deleteDataAction,
+  profileUpdateAction,
+  signOutOfSessionsAction,
+} from "@/app/(profile)/actions";
 import { ProfileFormSchema } from "@/app/(profile)/schema";
 import { ErrorList, Field } from "@/app/_components/forms";
 import { StatusButton } from "@/app/_components/ui/status-button";
@@ -97,5 +101,48 @@ export function DeleteData() {
         {dc.doubleCheck ? `Are you sure?` : `Delete all your data`}
       </StatusButton>
     </form>
+  );
+}
+
+export function SignOutSessions({
+  userId,
+  sessionsCount,
+}: {
+  userId: User["id"];
+  sessionsCount: number;
+}) {
+  const signOutOfSessions = signOutOfSessionsAction.bind(null, userId);
+  const dc = useDoubleCheck();
+
+  const otherSessionsCount = sessionsCount - 1;
+
+  return (
+    <div>
+      {otherSessionsCount ? (
+        <form action={signOutOfSessions}>
+          <AuthenticityTokenInput />
+          <StatusButton
+            {...dc.getButtonProps({
+              type: "submit",
+            })}
+            variant={dc.doubleCheck ? "destructive" : "default"}
+            className="inline-flex items-center gap-1.5"
+          >
+            <AvatarIcon />
+            {dc.doubleCheck
+              ? `Are you sure?`
+              : `Sign out of ${otherSessionsCount} other sessions`}
+          </StatusButton>
+        </form>
+      ) : (
+        <span className="inline-flex items-center gap-1.5">
+          <AvatarIcon
+            name="avatar"
+            className="w-[1em] h-[1em] inline self-center"
+          />
+          This is your only session
+        </span>
+      )}
+    </div>
   );
 }

@@ -2,12 +2,13 @@
 
 import { db } from "@/server/db";
 import { parseWithZod as parse } from "@conform-to/zod";
+import type { User } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { checkHoneypot } from "@/utils/honeypot.server";
-import { getUserId } from "@/utils/session.server";
+import { getCookieSessionId, requireUserId } from "@/utils/session.server";
 
 import { logout } from "../(auth)/actions";
 import { PhotoFormSchema, ProfileFormSchema } from "./schema";
@@ -15,7 +16,7 @@ import { PhotoFormSchema, ProfileFormSchema } from "./schema";
 export async function profileUpdateAction(_: unknown, formData: FormData) {
   checkHoneypot(formData);
 
-  const userId = await getUserId();
+  const userId = await requireUserId();
 
   const submission = await parse(formData, {
     async: true,
@@ -61,13 +62,13 @@ export async function profileUpdateAction(_: unknown, formData: FormData) {
     },
   });
 
-  revalidatePath("/");
+  revalidatePath("/", "layout");
 
   return submission.reply();
 }
 
 export async function deleteDataAction() {
-  const userId = await getUserId();
+  const userId = await requireUserId();
 
   await db.user.delete({ where: { id: userId } });
 
@@ -77,13 +78,13 @@ export async function deleteDataAction() {
 export async function updateProfilePhoto(_: unknown, formData: FormData) {
   checkHoneypot(formData);
 
-  const userId = await getUserId();
+  const userId = await requireUserId();
 
   const intent = formData.get("intent");
 
   if (intent === "delete") {
     await db.userImage.deleteMany({ where: { userId } });
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     redirect("/settings/profile");
   }
 
@@ -114,6 +115,13 @@ export async function updateProfilePhoto(_: unknown, formData: FormData) {
     });
   });
 
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   redirect("/settings/profile");
+}
+
+export async function signOutOfSessionsAction(userId: User["id"]) {
+  const sessionId = await getCookieSessionId();
+  if (!sessionId) return null;
+  await db.session.deleteMany({ where: { id: { not: sessionId }, userId } });
+  revalidatePath("/", "layout");
 }

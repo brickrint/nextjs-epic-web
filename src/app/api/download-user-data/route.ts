@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
         },
       },
       password: false,
+      sessions: true,
     },
   });
 

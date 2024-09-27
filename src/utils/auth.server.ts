@@ -1,5 +1,5 @@
 import { db } from "@/server/db";
-import { type Password, type User } from "@prisma/client";
+import type { Password, Session, User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { addDays } from "date-fns";
 import "server-only";
@@ -27,22 +27,27 @@ export async function signup({
 }) {
   const hash = await getPasswordHash(password);
 
-  const user = await db.user.create({
-    select: { id: true },
+  const session = await db.session.create({
     data: {
-      email: email.toLowerCase(),
-      username: username.toLowerCase(),
-      name,
-      password: {
+      expirationDate: getSessionExpirationTime(),
+      user: {
         create: {
-          hash,
+          email: email.toLowerCase(),
+          username: username.toLowerCase(),
+          name,
+          password: {
+            create: {
+              hash,
+            },
+          },
+          roles: { connect: { name: "user" } },
         },
       },
-      roles: { connect: { name: "user" } },
     },
+    select: { id: true, expirationDate: true },
   });
 
-  return user;
+  return session;
 }
 
 export async function login({
@@ -52,7 +57,16 @@ export async function login({
   username: User["username"];
   password: string;
 }) {
-  return verifyUserPassword({ username }, password);
+  const user = await verifyUserPassword({ username }, password);
+
+  if (!user) return null;
+
+  const session = await db.session.create({
+    select: { id: true, expirationDate: true },
+    data: { userId: user.id, expirationDate: getSessionExpirationTime() },
+  });
+
+  return session;
 }
 
 export async function verifyUserPassword(
@@ -78,4 +92,9 @@ export async function verifyUserPassword(
   }
 
   return { id: userWithPassword.id };
+}
+
+export async function logout(sessionId: Session["id"]) {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  void db.session.deleteMany({ where: { id: sessionId } }).catch(() => {});
 }

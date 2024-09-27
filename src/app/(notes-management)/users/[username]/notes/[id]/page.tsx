@@ -1,4 +1,3 @@
-import { db } from "@/server/db";
 import { ClockIcon, Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
 import { type Metadata } from "next";
 import Image from "next/image";
