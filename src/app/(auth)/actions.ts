@@ -12,18 +12,73 @@ import {
   logout as logoutUser,
   signup as signupUser,
 } from "@/utils/auth.server";
+import { sendEmail } from "@/utils/email.server";
 import { checkHoneypot } from "@/utils/honeypot.server";
 import {
   createCookie as createSessionCookie,
   deleteCookie,
   getCookieSessionId,
 } from "@/utils/session.server";
+import {
+  createCookie as createVerificationCookie,
+  getCookie as getVerificationEmail,
+} from "@/utils/verification.server";
 
-import { LoginFormSchema } from "./schema";
+import { LoginFormSchema, SignupSchema } from "./schema";
 import { SignupFormSchema } from "./schema";
 
-export async function signup(_prevState: unknown, formData: FormData) {
+export async function signup(_: unknown, formData: FormData) {
   checkHoneypot(formData);
+
+  const submission = await parse(formData, {
+    schema: SignupSchema.superRefine(async (data, ctx) => {
+      const existingUser = await db.user.findUnique({
+        where: { email: data.email },
+        select: { id: true },
+      });
+      if (existingUser) {
+        ctx.addIssue({
+          path: ["email"],
+          code: z.ZodIssueCode.custom,
+          message: "A user already exists with this email",
+        });
+        return;
+      }
+    }),
+
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  const { email, redirectTo = "" } = submission.value;
+
+  const response = await sendEmail({
+    to: email,
+    subject: `Welcome to Epic Notes!`,
+    text: `This is a test email`,
+  });
+
+  const searchParams = new URLSearchParams();
+  searchParams.set("redirect", redirectTo);
+
+  if (response.status === "success") {
+    await createVerificationCookie(email);
+    redirect(
+      redirectTo ? `/onboarding?${searchParams.toString()}` : "/onboarding",
+    );
+  } else {
+    return submission.reply();
+  }
+}
+
+export async function onboard(_: unknown, formData: FormData) {
+  checkHoneypot(formData);
+
+  const email = await getVerificationEmail();
+
   const submission = await parse(formData, {
     schema: SignupFormSchema.superRefine(async (data, ctx) => {
       const existingUser = await db.user.findUnique({
@@ -39,9 +94,8 @@ export async function signup(_prevState: unknown, formData: FormData) {
         return;
       }
     }).transform(async (data) => {
-      const { username, email, name, password } = data;
-
-      const session = await signupUser({ username, email, name, password });
+      const { username, name, password } = data;
+      const session = await signupUser({ username, name, password, email });
 
       return { ...data, session };
     }),

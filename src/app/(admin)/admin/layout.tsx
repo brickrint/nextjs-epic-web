@@ -3,11 +3,7 @@ import React from "react";
 import { Spacer } from "@/app/_components/spacer";
 import { requireUserWithRole } from "@/utils/permissions";
 
-type Props = Readonly<{
-  children: React.ReactNode;
-}>;
-
-export default async function Layout({ children }: Props) {
+export default async function Layout() {
   await requireUserWithRole("admin");
 
   return (

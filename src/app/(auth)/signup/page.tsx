@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 
-import { Spacer } from "@/app/_components/spacer";
-// import { sendEmail } from "@/utils/email.server";
 import { requireAnonymous } from "@/utils/session.server";
 
 import { Form } from "./_components/form";
@@ -9,26 +7,16 @@ import { Form } from "./_components/form";
 export default async function SignupPage() {
   await requireAnonymous();
 
-  // 🐨 uncomment this to test it out:
-  // const response = await sendEmail({
-  //   to: "kody@kcd.dev",
-  //   subject: "Hello World",
-  //   text: "This is the plain text version",
-  //   html: "<p>This is the HTML version</p>",
-  // });
-  // console.log("⚛️ response", response);
-  // you should get a log with an error
-
   return (
-    <div className="container flex min-h-full flex-col justify-center pb-32 pt-20">
-      <div className="mx-auto w-full max-w-lg">
-        <div className="flex flex-col gap-3 text-center">
-          <h1 className="text-h1">Welcome aboard!</h1>
-          <p className="text-body-md text-muted-foreground">
-            Please enter your details.
-          </p>
-        </div>
-        <Spacer size="xs" />
+    <div className="container flex flex-col justify-center pb-32 pt-20">
+      <div className="text-center">
+        <h1 className="text-h1">Let`s start your journey!</h1>
+        <p className="mt-3 text-body-md text-muted-foreground">
+          Please enter your email.
+        </p>
+      </div>
+
+      <div className="mx-auto mt-16 min-w-[368px] max-w-sm">
         <Form />
       </div>
     </div>

@@ -58,6 +58,7 @@ export const SharedSearchBar = ({
           id={id}
           defaultValue={searchParams.get("search") ?? ""}
           placeholder="Search"
+          inputMode="search"
           className="w-full"
           autoFocus={autoFocus}
         />

@@ -18,7 +18,6 @@ export const SignupFormSchema = z
   .object({
     username: UsernameSchema,
     name: NameSchema,
-    email: EmailSchema,
     password: PasswordSchema,
     confirmPassword: PasswordSchema,
     agreeToTermsOfServiceAndPrivacyPolicy: z.boolean({
@@ -37,3 +36,8 @@ export const SignupFormSchema = z
       });
     }
   });
+
+export const SignupSchema = z.object({
+  email: EmailSchema,
+  redirectTo: z.string().optional(),
+});
