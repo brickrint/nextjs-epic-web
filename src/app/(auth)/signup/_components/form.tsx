@@ -11,11 +11,11 @@ import { StatusButton } from "@/app/_components/ui/status-button";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
 
 import { signup as signupAction } from "../../actions";
-import { SignupSchema } from "../../schema";
+import { SignupSchema, redirectToQueryParam } from "../../schema";
 
 export function Form() {
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect");
+  const redirectTo = searchParams.get(redirectToQueryParam);
 
   const [actionState, signup] = useFormState(signupAction, undefined);
 

@@ -166,10 +166,19 @@ model Session {
   @@index([userId])
 }
 
-// model VerificationToken {
-//     identifier String
-//     token      String   @unique
-//     expires    DateTime
+model Verification {
+  id          String @id @default(cuid())
+  type        String    // email | phone
+  target      String
 
-//     @@unique([identifier, token])
-// }
+  secret      String    // The secret key used to generate the otp
+  algorithm   String    // The algorithm used to generate the otp
+  digits      Int       // The number of digits in the otp
+  period      Int       // The number of seconds the otp is valid for
+  charSet     String    // The character set used to generate the otp
+  expiresAt   DateTime? // - When it's safe to delete this verification
+
+  createdAt  DateTime @default(now())
+
+  @@unique([type, target])
+}

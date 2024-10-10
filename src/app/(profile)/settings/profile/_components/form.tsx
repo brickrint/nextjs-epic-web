@@ -33,7 +33,6 @@ export function UpdateProfile({ user }: { user: Partial<User> }) {
     defaultValue: {
       username: user.username,
       name: user.name ?? "",
-      email: user.email,
     },
   });
 
@@ -55,15 +54,6 @@ export function UpdateProfile({ user }: { user: Partial<User> }) {
           labelProps={{ htmlFor: fields.name.id, children: "Name" }}
           inputProps={getInputProps(fields.name, { type: "text" })}
           errors={fields.name.errors}
-        />
-        <Field
-          className="col-span-3"
-          labelProps={{ htmlFor: fields.email.id, children: "Email" }}
-          inputProps={{
-            ...getInputProps(fields.email, { type: "email" }),
-            inputMode: "email",
-          }}
-          errors={fields.email.errors}
         />
       </div>
 

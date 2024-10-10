@@ -41,13 +41,17 @@ export async function createCookie(email: VerificationPayload["email"]) {
   });
 }
 
-export async function getCookie() {
+export async function getCookie(redirectToPath: string) {
   const signedValue = cookies().get(cookieKey);
 
   const params = searchParams();
 
+  const redirectTo = params.size
+    ? `${redirectToPath}?${params.toString()}`
+    : `${redirectToPath}`;
+
   if (!signedValue) {
-    redirect(params.size ? `/login?${params.toString()}` : "/login");
+    redirect(redirectTo);
   }
 
   try {
@@ -57,6 +61,10 @@ export async function getCookie() {
     );
     return payload.email;
   } catch {
-    redirect(params.size ? `/login?${params.toString()}` : "/login");
+    redirect(redirectTo);
   }
+}
+
+export async function deleteCookie() {
+  cookies().delete(cookieKey);
 }

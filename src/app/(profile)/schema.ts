@@ -1,15 +1,10 @@
 import { z } from "zod";
 
-import {
-  EmailSchema,
-  NameSchema,
-  UsernameSchema,
-} from "@/utils/user-validation";
+import { NameSchema, UsernameSchema } from "@/utils/user-validation";
 
 export const ProfileFormSchema = z.object({
   name: NameSchema.optional(),
   username: UsernameSchema,
-  email: EmailSchema,
 });
 
 const MAX_SIZE = 1024 * 1024 * 3; // 3MB

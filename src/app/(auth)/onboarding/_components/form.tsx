@@ -11,18 +11,18 @@ import { StatusButton } from "@/app/_components/ui/status-button";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
 
 import { onboard } from "../../actions";
-import { SignupFormSchema } from "../../schema";
+import { SignupFormSchema, redirectToQueryParam } from "../../schema";
 
 export function Form() {
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect");
+  const redirectTo = searchParams.get(redirectToQueryParam);
 
-  const [actionState, signup] = useFormState(onboard, undefined);
+  const [lastResult, signup] = useFormState(onboard, undefined);
 
   const [form, fields] = useForm({
     id: "signup-form",
     constraint: getZodConstraint(SignupFormSchema),
-    lastResult: actionState,
+    lastResult,
     defaultValue: { redirectTo },
     onValidate({ formData }) {
       return parse(formData, { schema: SignupFormSchema });

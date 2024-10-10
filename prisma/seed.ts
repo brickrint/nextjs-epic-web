@@ -26,8 +26,7 @@ async function seed() {
 
   console.time("🧹 Cleaned up the database...");
   await prisma.user.deleteMany();
-  await prisma.role.deleteMany();
-  await prisma.permission.deleteMany();
+  await prisma.verification.deleteMany();
   console.timeEnd("🧹 Cleaned up the database...");
 
   const entities = ["user", "note"] as const;

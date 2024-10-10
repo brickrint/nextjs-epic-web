@@ -94,6 +94,24 @@ export async function verifyUserPassword(
   return { id: userWithPassword.id };
 }
 
+export async function reserUserPassword({
+  username,
+  password,
+}: {
+  username: User["username"];
+  password: string;
+}) {
+  const hashedPassword = await getPasswordHash(password);
+
+  const user = await db.user.update({
+    where: { username },
+    data: { password: { update: { hash: hashedPassword } } },
+    select: { id: true },
+  });
+
+  return user;
+}
+
 export async function logout(sessionId: Session["id"]) {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   void db.session.deleteMany({ where: { id: sessionId } }).catch(() => {});

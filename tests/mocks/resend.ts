@@ -14,6 +14,8 @@ export const handlers: Array<HttpHandler> = [
   http.post("https://api.resend.com/emails", async ({ request }) => {
     const body = await EmailSchema.parseAsync(await request.json());
 
+    console.log("Sending email", body);
+
     return HttpResponse.json({
       id: faker.string.alphanumeric(),
       from: body.from,

@@ -9,7 +9,7 @@ import { Form } from "./_components/form";
 export default async function OnboardingPage() {
   await requireAnonymous();
 
-  const email = await getVerificationEmail();
+  const email = await getVerificationEmail("/signup");
 
   return (
     <div className="container flex min-h-full flex-col justify-center pb-32 pt-20">

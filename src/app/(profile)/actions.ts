@@ -20,7 +20,7 @@ export async function profileUpdateAction(_: unknown, formData: FormData) {
 
   const submission = await parse(formData, {
     async: true,
-    schema: ProfileFormSchema.superRefine(async ({ email, username }, ctx) => {
+    schema: ProfileFormSchema.superRefine(async ({ username }, ctx) => {
       const existingUsername = await db.user.findUnique({
         where: { username },
         select: { id: true },
@@ -30,17 +30,6 @@ export async function profileUpdateAction(_: unknown, formData: FormData) {
           path: ["username"],
           code: "custom",
           message: "A user already exists with this username",
-        });
-      }
-      const existingEmail = await db.user.findUnique({
-        where: { email },
-        select: { id: true },
-      });
-      if (existingEmail && existingEmail.id !== userId) {
-        ctx.addIssue({
-          path: ["email"],
-          code: "custom",
-          message: "A user already exists with this email",
         });
       }
     }),
@@ -58,7 +47,6 @@ export async function profileUpdateAction(_: unknown, formData: FormData) {
     data: {
       name: data.name,
       username: data.username,
-      email: data.email,
     },
   });
 

@@ -1,6 +1,7 @@
 import {
   CameraIcon, // DotsHorizontalIcon,
   DownloadIcon,
+  EnvelopeClosedIcon,
 } from "@radix-ui/react-icons";
 import Image from "next/image";
 import Link from "next/link";
@@ -29,7 +30,8 @@ export default async function Page() {
           <Button
             asChild
             variant="outline"
-            className="absolute -right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full p-0"
+            size="icon"
+            className="absolute -right-3 top-3 flex items-center justify-center rounded-full p-0"
           >
             <Link
               href="profile/photo"
@@ -45,6 +47,18 @@ export default async function Page() {
 
       <div className="col-span-6 my-6 h-1 border-b-[1.5px] border-foreground" />
       <div className="col-span-full flex flex-col gap-6">
+        <div>
+          <Link
+            href="profile/change-email"
+            className="p-0 inline-flex items-center gap-1.5"
+          >
+            <EnvelopeClosedIcon
+              name="envelope-closed"
+              className="w-[1em] h-[1em] inline self-center"
+            />
+            Change email from {user.email}
+          </Link>
+        </div>
         {/* <div>
           <Link href="password" className="inline-flex items-center gap-1.5">
             <DotsHorizontalIcon
