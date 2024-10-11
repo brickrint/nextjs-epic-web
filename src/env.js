@@ -1,6 +1,10 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
+const NODE_ENV = z
+  .enum(["development", "test", "production"])
+  .default("development");
+
 export const env = createEnv({
   /**
    * Specify your server-side environment variables schema here. This way you can ensure the app
@@ -8,9 +12,7 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
-    NODE_ENV: z
-      .enum(["development", "test", "production"])
-      .default("development"),
+    NODE_ENV,
     NEXTAUTH_SECRET:
       process.env.NODE_ENV === "production"
         ? z.string()
@@ -20,10 +22,17 @@ export const env = createEnv({
       // Since NextAuth.js automatically uses the VERCEL_URL if present.
       (str) => process.env.VERCEL_URL ?? str,
       // VERCEL_URL doesn't include `https` so it cant be validated as a URL
-      process.env.VERCEL ? z.string() : z.string().url()
+      process.env.VERCEL ? z.string() : z.string().url(),
     ),
     DISCORD_CLIENT_ID: z.string(),
     DISCORD_CLIENT_SECRET: z.string(),
+    HONEYPOT_ENCRYPTION_SEED: z.string(),
+    SESSION_SECRET: z.string(),
+    RESEND_API_KEY: z.string(),
+    NEXT_RUNTIME: z.enum(["nodejs", "edge"]),
+    MOCKS: z.preprocess((val) => {
+      return val === "true";
+    }, z.boolean()),
   },
 
   /**
@@ -46,6 +55,11 @@ export const env = createEnv({
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
+    HONEYPOT_ENCRYPTION_SEED: process.env.HONEYPOT_ENCRYPTION_SEED,
+    SESSION_SECRET: process.env.SESSION_SECRET,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    NEXT_RUNTIME: process.env.NEXT_RUNTIME,
+    MOCKS: process.env.MOCKS,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
