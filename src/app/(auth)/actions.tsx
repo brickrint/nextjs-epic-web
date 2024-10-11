@@ -2,7 +2,7 @@
 
 import { db } from "@/server/db";
 import { parseWithZod as parse } from "@conform-to/zod";
-import { generateTOTP, verifyTOTP } from "@epic-web/totp";
+import { verifyTOTP } from "@epic-web/totp";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -25,15 +25,16 @@ import {
   createCookie as createVerificationCookie,
   deleteCookie as deleteVerificationCookie,
   getCookie as getVerificationEmail,
+  prepareVerification,
 } from "@/utils/verification.server";
 
+import { handleEmailChange } from "../(profile)/actions";
 import { ForgotPasswordEmail, SignupEmail } from "./emails";
 import {
   ForgotPasswordSchema,
   LoginFormSchema,
   ResetPasswordSchema,
   SignupSchema,
-  type VerificationTypes,
   VerifySchema,
   codeQueryParam,
   redirectToQueryParam,
@@ -214,9 +215,19 @@ async function validateRequest(body: FormData) {
     },
   });
 
-  await createVerificationCookie(submissionValue[targetQueryParam]);
-
-  redirect(`/${type}${redirectTo ? `?${redirectTo}` : ""}`);
+  switch (type) {
+    case "change-email": {
+      await handleEmailChange(submissionValue);
+    }
+    case "onboarding":
+    case "reset-password": {
+      await createVerificationCookie(target);
+      redirect(`/${type}${redirectTo ? `?${redirectTo}` : ""}`);
+    }
+    default: {
+      throw new Error("Unknown verification type");
+    }
+  }
 }
 
 export async function login(_: unknown, formData: FormData) {
@@ -273,54 +284,6 @@ export async function logout() {
   deleteCookie(cookies());
   revalidatePath("/");
   redirect("/");
-}
-
-async function prepareVerification({
-  period = 10 * 60,
-  type,
-  target,
-  redirectTo,
-}: {
-  period?: number;
-  type: VerificationTypes;
-  target: string;
-  redirectTo?: string;
-}) {
-  const { otp, ...verificationConfig } = await generateTOTP({
-    algorithm: "SHA-256",
-    period,
-  });
-
-  const verificationData = {
-    type,
-    target,
-    ...verificationConfig,
-    expiresAt: new Date(Date.now() + verificationConfig.period * 1000),
-  };
-
-  await db.verification.upsert({
-    where: {
-      type_target: {
-        target,
-        type,
-      },
-    },
-    create: verificationData,
-    update: verificationData,
-  });
-
-  const redirectToSearchParams = new URLSearchParams();
-
-  if (redirectTo) {
-    redirectToSearchParams.set(redirectToQueryParam, redirectTo);
-  }
-  redirectToSearchParams.set(typeQueryParam, type);
-  redirectToSearchParams.set(targetQueryParam, target);
-
-  return {
-    otp,
-    redirectTo: redirectToSearchParams.toString(),
-  };
 }
 
 export async function forgotPassword(_: unknown, formData: FormData) {
@@ -381,8 +344,6 @@ export async function forgotPassword(_: unknown, formData: FormData) {
 export async function resetPassword(_: unknown, formData: FormData) {
   const resetPasswordUsername = await getVerificationEmail("/login");
 
-  console.log("resetPasswordUsername", resetPasswordUsername);
-
   const submission = parse(formData, {
     schema: ResetPasswordSchema,
   });
@@ -398,12 +359,6 @@ export async function resetPassword(_: unknown, formData: FormData) {
   });
 
   await deleteVerificationCookie();
-
-  console.log(
-    "### resetPasswordUsername, password",
-    resetPasswordUsername,
-    password,
-  );
 
   revalidatePath("/");
   redirect("/login");

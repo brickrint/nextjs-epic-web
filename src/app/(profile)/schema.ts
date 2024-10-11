@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { NameSchema, UsernameSchema } from "@/utils/user-validation";
+import {
+  EmailSchema,
+  NameSchema,
+  UsernameSchema,
+} from "@/utils/user-validation";
 
 export const ProfileFormSchema = z.object({
   name: NameSchema.optional(),
@@ -17,4 +21,8 @@ export const PhotoFormSchema = z.object({
       (file) => file.size <= MAX_SIZE,
       "Image size must be less than 3MB",
     ),
+});
+
+export const ChangeEmailSchema = z.object({
+  email: EmailSchema,
 });

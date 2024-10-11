@@ -7,13 +7,27 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { sendEmail } from "@/utils/email.server";
 import { checkHoneypot } from "@/utils/honeypot.server";
 import { getCookieSessionId, requireUserId } from "@/utils/session.server";
+import { createToastRedirect } from "@/utils/toast.server";
+import {
+  createCookie as createVerificationCookie,
+  deleteCookie as deleteVerificationCookie,
+  getCookie as getVerificationCookie,
+  prepareVerification,
+} from "@/utils/verification.server";
 
 import { logout } from "../(auth)/actions";
-import { PhotoFormSchema, ProfileFormSchema } from "./schema";
+import { type VerifySchemaType } from "../(auth)/schema";
+import { EmailChangeEmail, EmailChangeNoticeEmail } from "./emails";
+import {
+  ChangeEmailSchema,
+  PhotoFormSchema,
+  ProfileFormSchema,
+} from "./schema";
 
-export async function profileUpdateAction(_: unknown, formData: FormData) {
+export async function updateProfile(_: unknown, formData: FormData) {
   checkHoneypot(formData);
 
   const userId = await requireUserId();
@@ -55,7 +69,7 @@ export async function profileUpdateAction(_: unknown, formData: FormData) {
   return submission.reply();
 }
 
-export async function deleteDataAction() {
+export async function deleteData() {
   const userId = await requireUserId();
 
   await db.user.delete({ where: { id: userId } });
@@ -107,9 +121,88 @@ export async function updateProfilePhoto(_: unknown, formData: FormData) {
   redirect("/settings/profile");
 }
 
-export async function signOutOfSessionsAction(userId: User["id"]) {
+export async function signOutOfSessions(userId: User["id"]) {
   const sessionId = await getCookieSessionId();
   if (!sessionId) return null;
   await db.session.deleteMany({ where: { id: { not: sessionId }, userId } });
   revalidatePath("/", "layout");
+}
+
+export async function changeEmail(_: unknown, formData: FormData) {
+  const userId = await requireUserId();
+
+  checkHoneypot(formData);
+
+  const submission = await parse(formData, {
+    schema: ChangeEmailSchema.superRefine(async (data, ctx) => {
+      const existingUser = await db.user.findUnique({
+        where: { email: data.email },
+      });
+      if (existingUser) {
+        ctx.addIssue({
+          path: ["email"],
+          code: "custom",
+          message: "This email is already in use.",
+        });
+      }
+    }),
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  const { email: newEmail } = submission.value;
+
+  const { otp, redirectTo } = await prepareVerification({
+    target: userId,
+    type: "change-email",
+  });
+
+  const response = await sendEmail({
+    to: submission.value.email,
+    subject: `Epic Notes Email Change Verification`,
+    react: <EmailChangeEmail otp={otp} />,
+  });
+
+  if (response.status !== "success") {
+    return submission.reply({ formErrors: [response.error.message] });
+  }
+
+  await createVerificationCookie(newEmail);
+
+  redirect(`/verify?${redirectTo}`);
+}
+
+export async function handleEmailChange(submission: VerifySchemaType) {
+  const newEmail = await getVerificationCookie("/login");
+
+  const preUpdateUser = await db.user.findFirstOrThrow({
+    select: { email: true },
+    where: { id: submission.target },
+  });
+
+  const user = await db.user.update({
+    where: { id: submission.target },
+    select: { id: true, email: true, username: true },
+    data: { email: newEmail },
+  });
+
+  void sendEmail({
+    to: preUpdateUser.email,
+    subject: "Epic Stack email changed",
+    react: <EmailChangeNoticeEmail userId={user.id} />,
+  });
+
+  await deleteVerificationCookie();
+
+  createToastRedirect(
+    {
+      title: "Email Changed",
+      type: "success",
+      description: `Your email has been changed to ${user.email}`,
+    },
+    "/settings/profile",
+  );
 }

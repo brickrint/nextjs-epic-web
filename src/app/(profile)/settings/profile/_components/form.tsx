@@ -7,9 +7,9 @@ import { AvatarIcon, TrashIcon } from "@radix-ui/react-icons";
 import { useFormState } from "react-dom";
 
 import {
-  deleteDataAction,
-  profileUpdateAction,
-  signOutOfSessionsAction,
+  deleteData as deleteDataAction,
+  signOutOfSessions as signOutOfSessionsAction,
+  updateProfile as updateProfileAction,
 } from "@/app/(profile)/actions";
 import { ProfileFormSchema } from "@/app/(profile)/schema";
 import { ErrorList, Field } from "@/app/_components/forms";
@@ -19,7 +19,7 @@ import { useDoubleCheck } from "@/utils/misc.client";
 
 export function UpdateProfile({ user }: { user: Partial<User> }) {
   const [actionState, updateProfile] = useFormState(
-    profileUpdateAction,
+    updateProfileAction,
     undefined,
   );
 
