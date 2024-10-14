@@ -9,15 +9,15 @@ import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { ErrorList, Field } from "@/app/_components/forms";
 import { StatusButton } from "@/app/_components/ui/status-button";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
-
-import { verify as verifyAction } from "../../actions";
 import {
   VerifySchema,
   codeQueryParam,
   redirectToQueryParam,
   targetQueryParam,
   typeQueryParam,
-} from "../../schema";
+} from "@/utils/verification.server";
+
+import { verify as verifyAction } from "../../actions";
 
 export function Form() {
   const params = useSearchParams();

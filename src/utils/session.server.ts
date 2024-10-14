@@ -10,6 +10,7 @@ import { cache } from "react";
 import { env } from "@/env";
 
 import { getSessionExpirationTime } from "./auth.server";
+import { twoFAVerificationType } from "./verification.server";
 
 type SessionInfo = Pick<Session, "id" | "expirationDate">;
 
@@ -179,4 +180,13 @@ export async function requireAnonymous() {
   if (user) {
     redirect("/");
   }
+}
+
+export async function get2FAUser(target: string) {
+  return db.verification.findUnique({
+    select: { id: true },
+    where: {
+      type_target: { type: twoFAVerificationType, target },
+    },
+  });
 }

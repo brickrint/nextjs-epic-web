@@ -12,19 +12,23 @@ import { checkHoneypot } from "@/utils/honeypot.server";
 import { getCookieSessionId, requireUserId } from "@/utils/session.server";
 import { createToastRedirect } from "@/utils/toast.server";
 import {
+  type VerifySchemaType,
   createCookie as createVerificationCookie,
   deleteCookie as deleteVerificationCookie,
   getCookie as getVerificationCookie,
+  isCodeValid,
   prepareVerification,
+  twoFAVerificationType,
+  twoFAVerifyVerificationType,
 } from "@/utils/verification.server";
 
 import { logout } from "../(auth)/actions";
-import { type VerifySchemaType } from "../(auth)/schema";
 import { EmailChangeEmail, EmailChangeNoticeEmail } from "./emails";
 import {
   ChangeEmailSchema,
   PhotoFormSchema,
   ProfileFormSchema,
+  VerifySchema,
 } from "./schema";
 
 export async function updateProfile(_: unknown, formData: FormData) {
@@ -204,5 +208,88 @@ export async function handleEmailChange(submission: VerifySchemaType) {
       description: `Your email has been changed to ${user.email}`,
     },
     "/settings/profile",
+  );
+}
+
+export async function enable2FA() {
+  const userId = await requireUserId();
+
+  await prepareVerification({
+    type: twoFAVerifyVerificationType,
+    target: userId,
+    algorithm: "SHA-1",
+    period: 30,
+    expiresIn: 100000,
+  });
+
+  revalidatePath("/settings/profile/two-factor/verify");
+  redirect("/settings/profile/two-factor/verify");
+}
+
+export async function verify2FA(_: unknown, formData: FormData) {
+  const userId = await requireUserId();
+
+  if (formData.get("intent") === "cancel") {
+    await db.verification.deleteMany({
+      where: { type: twoFAVerifyVerificationType, target: userId },
+    });
+
+    redirect("/settings/profile/two-factor");
+  }
+  const submission = await parse(formData, {
+    schema: () =>
+      VerifySchema.superRefine(async (data, ctx) => {
+        const codeIsValid = await isCodeValid({
+          code: data.code,
+          type: twoFAVerifyVerificationType,
+          target: userId,
+        });
+
+        if (!codeIsValid) {
+          ctx.addIssue({
+            path: ["code"],
+            code: z.ZodIssueCode.custom,
+            message: `Invalid code`,
+          });
+          return z.NEVER;
+        }
+      }),
+
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  await db.verification.update({
+    where: {
+      type_target: { type: twoFAVerifyVerificationType, target: userId },
+    },
+    data: { type: twoFAVerificationType },
+  });
+
+  revalidatePath("/settings/profile/two-factor");
+  createToastRedirect(
+    {
+      type: "success",
+      title: "Enabled",
+      description: "Two-factor authentication has been enabled.",
+    },
+    "/settings/profile/two-factor",
+  );
+}
+
+export async function disable2FA() {
+  await requireUserId();
+
+  revalidatePath("/settings/profile/two-factor");
+  createToastRedirect(
+    {
+      title: "2FA Disabled (jk)",
+      description: "This has not yet been implemented",
+      type: "error",
+    },
+    "/settings/profile/two-factor",
   );
 }

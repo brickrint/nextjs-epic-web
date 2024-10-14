@@ -26,3 +26,7 @@ export const PhotoFormSchema = z.object({
 export const ChangeEmailSchema = z.object({
   email: EmailSchema,
 });
+
+export const VerifySchema = z.object({
+  code: z.string().min(6).max(6),
+});

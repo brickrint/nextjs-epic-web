@@ -22,10 +22,15 @@ import {
   getCookieSessionId,
 } from "@/utils/session.server";
 import {
+  VerifySchema,
+  codeQueryParam,
   createCookie as createVerificationCookie,
   deleteCookie as deleteVerificationCookie,
   getCookie as getVerificationEmail,
   prepareVerification,
+  redirectToQueryParam,
+  targetQueryParam,
+  typeQueryParam,
 } from "@/utils/verification.server";
 
 import { handleEmailChange } from "../(profile)/actions";
@@ -35,11 +40,6 @@ import {
   LoginFormSchema,
   ResetPasswordSchema,
   SignupSchema,
-  VerifySchema,
-  codeQueryParam,
-  redirectToQueryParam,
-  targetQueryParam,
-  typeQueryParam,
 } from "./schema";
 import { SignupFormSchema } from "./schema";
 
