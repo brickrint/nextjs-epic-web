@@ -127,9 +127,11 @@ export async function updateProfilePhoto(_: unknown, formData: FormData) {
 
 export async function signOutOfSessions(userId: User["id"]) {
   const sessionId = await getCookieSessionId();
-  if (!sessionId) return null;
-  await db.session.deleteMany({ where: { id: { not: sessionId }, userId } });
-  revalidatePath("/", "layout");
+
+  if (sessionId) {
+    await db.session.deleteMany({ where: { id: { not: sessionId }, userId } });
+    revalidatePath("/", "layout");
+  }
 }
 
 export async function changeEmail(_: unknown, formData: FormData) {
