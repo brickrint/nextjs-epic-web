@@ -199,7 +199,7 @@ export async function handleEmailChange(submission: VerifySchemaType) {
     react: <EmailChangeNoticeEmail userId={user.id} />,
   });
 
-  await deleteVerificationCookie();
+  deleteVerificationCookie();
 
   createToastRedirect(
     {
@@ -266,7 +266,7 @@ export async function verify2FA(_: unknown, formData: FormData) {
     where: {
       type_target: { type: twoFAVerifyVerificationType, target: userId },
     },
-    data: { type: twoFAVerificationType },
+    data: { type: twoFAVerificationType, expiresAt: null },
   });
 
   revalidatePath("/settings/profile/two-factor");

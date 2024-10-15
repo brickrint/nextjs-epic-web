@@ -10,7 +10,10 @@ import { cache } from "react";
 import { env } from "@/env";
 
 import { getSessionExpirationTime } from "./auth.server";
-import { twoFAVerificationType } from "./verification.server";
+import {
+  redirectToQueryParam,
+  twoFAVerificationType,
+} from "./verification.server";
 
 type SessionInfo = Pick<Session, "id" | "expirationDate">;
 
@@ -166,7 +169,9 @@ export const getUser = cache(async () => {
 
   if (!maybeUser) {
     const redirectPath = pathname();
-    const seachParams = new URLSearchParams({ redirect: redirectPath });
+    const seachParams = new URLSearchParams({
+      [redirectToQueryParam]: redirectPath,
+    });
 
     redirect(`/login?${seachParams.toString()}`);
   }

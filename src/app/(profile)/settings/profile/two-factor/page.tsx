@@ -25,6 +25,7 @@ export default async function TwoFactorRoute() {
             className="p-0 inline-flex items-center gap-1.5"
           >
             <LockOpen1Icon />
+            Disable 2FA
           </Link>
         </>
       ) : (

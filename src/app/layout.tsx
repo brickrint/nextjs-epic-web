@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
 import { BackpackIcon } from "@radix-ui/react-icons";
 import { type Metadata } from "next";
-import { cookies, headers } from "next/headers";
+import { cookies, headersList } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import os from "node:os";
@@ -34,12 +34,12 @@ export default async function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const { username } = os.userInfo();
 
-  const headersList = headers();
+  const headers = headersList();
   const cookiesList = cookies();
   const user = await getOptionalUser();
-  const csrfToken = getCsrfToken(headersList);
+  const csrfToken = getCsrfToken(headers);
   const theme = getTheme(cookiesList);
-  const toast = parseToastHeaders(headersList);
+  const toast = parseToastHeaders(headers);
   const userIsAdmin = userHasRole(user, "admin");
 
   return (

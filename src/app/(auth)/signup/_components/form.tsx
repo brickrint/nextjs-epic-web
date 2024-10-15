@@ -9,7 +9,7 @@ import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { ErrorList, Field } from "@/app/_components/forms";
 import { StatusButton } from "@/app/_components/ui/status-button";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
-import { redirectToQueryParam } from "@/utils/verification.server";
+import { redirectToQueryParam } from "@/utils/verification";
 
 import { signup as signupAction } from "../../actions";
 import { SignupSchema } from "../../schema";

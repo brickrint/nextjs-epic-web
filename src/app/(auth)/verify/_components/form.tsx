@@ -10,16 +10,27 @@ import { ErrorList, Field } from "@/app/_components/forms";
 import { StatusButton } from "@/app/_components/ui/status-button";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
 import {
+  type VerificationTypes,
   VerifySchema,
   codeQueryParam,
   redirectToQueryParam,
   targetQueryParam,
   typeQueryParam,
-} from "@/utils/verification.server";
+} from "@/utils/verification";
 
 import { verify as verifyAction } from "../../actions";
 
-export function Form() {
+export function Form({
+  type,
+  code,
+  target,
+  redirectTo,
+}: {
+  type: VerificationTypes;
+  code: string;
+  target: string;
+  redirectTo: string;
+}) {
   const params = useSearchParams();
 
   const [actionData, verify] = useFormState(verifyAction, undefined);
@@ -45,10 +56,10 @@ export function Form() {
       return parse(formData, { schema: VerifySchema });
     },
     defaultValue: {
-      code: params.get(codeQueryParam) ?? "",
-      target: params.get(targetQueryParam) ?? "",
-      redirectTo: params.get(redirectToQueryParam) ?? "",
-      type: params.get(typeQueryParam) ?? "",
+      code,
+      target,
+      redirectTo,
+      type,
     },
   });
 

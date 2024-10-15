@@ -10,7 +10,7 @@ import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { CheckboxField, ErrorList, Field } from "@/app/_components/forms";
 import { StatusButton } from "@/app/_components/ui/status-button";
 import { AuthenticityTokenInput } from "@/utils/csrf.client";
-import { redirectToQueryParam } from "@/utils/verification.server";
+import { redirectToQueryParam } from "@/utils/verification";
 
 import { login as loginAction } from "../../actions";
 import { LoginFormSchema } from "../../schema";

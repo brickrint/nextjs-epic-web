@@ -1,14 +1,48 @@
 import { db } from "@/server/db";
 import { generateTOTP, verifyTOTP } from "@epic-web/totp";
+import { type Session } from "@prisma/client";
 import { addMinutes } from "date-fns";
 import * as jose from "jose";
 import { searchParams } from "next-extra/pathname";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import "server-only";
-import { z } from "zod";
 
 import { env } from "@/env";
+
+import {
+  VerificationTypeSchema,
+  type VerificationTypes,
+  VerifySchema,
+  type VerifySchemaType,
+  codeQueryParam,
+  redirectToQueryParam,
+  targetQueryParam,
+  twoFAVerificationType,
+  twoFAVerifyVerificationType,
+  typeQueryParam,
+} from "./verification";
+
+export function getRedirectToParams({
+  type,
+  target,
+  redirectTo,
+}: {
+  type: VerificationTypes | typeof twoFAVerifyVerificationType;
+  target: string;
+  redirectTo?: string;
+}) {
+  const redirectToSearchParams = new URLSearchParams();
+
+  if (redirectTo) {
+    redirectToSearchParams.set(redirectToQueryParam, redirectTo);
+  }
+
+  redirectToSearchParams.set(typeQueryParam, type);
+  redirectToSearchParams.set(targetQueryParam, target);
+
+  return redirectToSearchParams;
+}
 
 const SESSION_EXPIRATION_TIME = 10;
 function getSessionExpirationTime(date = new Date()) {
@@ -62,14 +96,14 @@ export async function getCookie(redirectToPath: string) {
       signedValue.value,
       secret,
     );
-    console.log("first payload", payload);
+
     return payload[targetQueryParam];
   } catch {
     redirect(redirectTo);
   }
 }
 
-export async function deleteCookie() {
+export function deleteCookie() {
   cookies().delete(cookieKey);
 }
 
@@ -82,7 +116,7 @@ export async function prepareVerification({
   expiresIn = 1000,
 }: {
   period?: number;
-  type: VerificationTypes;
+  type: VerificationTypes | typeof twoFAVerifyVerificationType;
   target: string;
   redirectTo?: string;
   algorithm?: string;
@@ -111,13 +145,11 @@ export async function prepareVerification({
     update: verificationData,
   });
 
-  const redirectToSearchParams = new URLSearchParams();
-
-  if (redirectTo) {
-    redirectToSearchParams.set(redirectToQueryParam, redirectTo);
-  }
-  redirectToSearchParams.set(typeQueryParam, type);
-  redirectToSearchParams.set(targetQueryParam, target);
+  const redirectToSearchParams = getRedirectToParams({
+    target,
+    type,
+    redirectTo,
+  });
 
   return {
     otp,
@@ -131,7 +163,7 @@ export async function isCodeValid({
   target,
 }: {
   code: string;
-  type: VerificationTypes;
+  type: VerificationTypes | typeof twoFAVerifyVerificationType;
   target: string;
 }) {
   const verification = await db.verification.findUnique({
@@ -154,29 +186,39 @@ export async function isCodeValid({
   return true;
 }
 
-export const codeQueryParam = "code";
-export const targetQueryParam = "target";
-export const redirectToQueryParam = "redirectTo";
-export const typeQueryParam = "type";
-
-export const twoFAVerifyVerificationType = "2fa-verify";
-export const twoFAVerificationType = "2fa";
-
-const verificationTypes = [
-  "onboarding",
-  "reset-password",
-  "change-email",
-  twoFAVerifyVerificationType,
+const unverifiedCookieKey = "unverified-session-id";
+type UnverifiedCookie = {
+  sessionId: Session["id"];
+  rememberMe: boolean;
+};
+export async function setUnferifiedCookie(options: UnverifiedCookie) {
+  cookies().set({
+    name: unverifiedCookieKey,
+    value: JSON.stringify(options),
+    secure: env.NODE_ENV === "production",
+    httpOnly: true,
+    sameSite: "strict",
+  });
+}
+export {
+  redirectToQueryParam,
+  targetQueryParam,
+  typeQueryParam,
   twoFAVerificationType,
-] as const;
-const VerificationTypeSchema = z.enum(verificationTypes);
-export type VerificationTypes = z.infer<typeof VerificationTypeSchema>;
+  VerificationTypeSchema,
+  VerifySchema,
+  type VerificationTypes,
+  type VerifySchemaType,
+  twoFAVerifyVerificationType,
+  codeQueryParam,
+};
 
-export const VerifySchema = z.object({
-  [codeQueryParam]: z.string().min(6).max(6),
-  [targetQueryParam]: z.string(),
-  [redirectToQueryParam]: z.string().optional(),
-  [typeQueryParam]: VerificationTypeSchema,
-});
+export function getUnverifiedCookie() {
+  const cookie = cookies().get(unverifiedCookieKey);
+  if (!cookie) return null;
+  return JSON.parse(cookie.value) as UnverifiedCookie;
+}
 
-export type VerifySchemaType = z.infer<typeof VerifySchema>;
+export function deleteUnverifiedCookie() {
+  cookies().delete(unverifiedCookieKey);
+}
