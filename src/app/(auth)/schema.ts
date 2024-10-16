@@ -55,18 +55,3 @@ export const ResetPasswordSchema = z
     message: "The passwords did not match",
     path: ["confirmPassword"],
   });
-
-export const codeQueryParam = "code";
-export const targetQueryParam = "target";
-export const redirectToQueryParam = "redirectTo";
-export const typeQueryParam = "type";
-const verificationTypes = ["onboarding", "reset-password"] as const;
-const VerificationTypeSchema = z.enum(verificationTypes);
-export type VerificationTypes = z.infer<typeof VerificationTypeSchema>;
-
-export const VerifySchema = z.object({
-  [codeQueryParam]: z.string().min(6).max(6),
-  [targetQueryParam]: z.string(),
-  [redirectToQueryParam]: z.string().optional(),
-  [typeQueryParam]: VerificationTypeSchema,
-});

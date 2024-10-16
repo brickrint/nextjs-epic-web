@@ -62,7 +62,7 @@ export async function login({
   if (!user) return null;
 
   const session = await db.session.create({
-    select: { id: true, expirationDate: true },
+    select: { id: true, expirationDate: true, userId: true },
     data: { userId: user.id, expirationDate: getSessionExpirationTime() },
   });
 

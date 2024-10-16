@@ -31,6 +31,10 @@ async function UsersListContent({
 }) {
   const users = await getUsersByUsername(searchTerm);
 
+  if (users.length === 0) {
+    return <p>No users found</p>;
+  }
+
   return (
     <ul
       className={cn(

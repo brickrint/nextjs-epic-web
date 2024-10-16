@@ -10,6 +10,10 @@ import { cache } from "react";
 import { env } from "@/env";
 
 import { getSessionExpirationTime } from "./auth.server";
+import {
+  redirectToQueryParam,
+  twoFAVerificationType,
+} from "./verification.server";
 
 type SessionInfo = Pick<Session, "id" | "expirationDate">;
 
@@ -165,7 +169,9 @@ export const getUser = cache(async () => {
 
   if (!maybeUser) {
     const redirectPath = pathname();
-    const seachParams = new URLSearchParams({ redirect: redirectPath });
+    const seachParams = new URLSearchParams({
+      [redirectToQueryParam]: redirectPath,
+    });
 
     redirect(`/login?${seachParams.toString()}`);
   }
@@ -179,4 +185,13 @@ export async function requireAnonymous() {
   if (user) {
     redirect("/");
   }
+}
+
+export async function get2FAUser(target: string) {
+  return db.verification.findUnique({
+    select: { id: true },
+    where: {
+      type_target: { type: twoFAVerificationType, target },
+    },
+  });
 }

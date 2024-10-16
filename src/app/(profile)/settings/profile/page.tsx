@@ -2,18 +2,22 @@ import {
   CameraIcon, // DotsHorizontalIcon,
   DownloadIcon,
   EnvelopeClosedIcon,
+  LockClosedIcon,
+  LockOpen1Icon,
 } from "@radix-ui/react-icons";
 import Image from "next/image";
 import Link from "next/link";
 
 import { Button } from "@/app/_components/ui/button";
 import { getUserImgSrc } from "@/utils/misc.server";
-import { getUser } from "@/utils/session.server";
+import { get2FAUser, getUser } from "@/utils/session.server";
 
 import { DeleteData, SignOutSessions, UpdateProfile } from "./_components/form";
 
 export default async function Page() {
   const user = await getUser();
+
+  const isTwoFAEnabled = Boolean(await get2FAUser(user.id));
 
   return (
     <div className="flex flex-col gap-12">
@@ -47,6 +51,24 @@ export default async function Page() {
 
       <div className="col-span-6 my-6 h-1 border-b-[1.5px] border-foreground" />
       <div className="col-span-full flex flex-col gap-6">
+        <div>
+          <Link
+            href="profile/two-factor"
+            className="p-0 inline-flex items-center gap-1.5"
+          >
+            {isTwoFAEnabled ? (
+              <>
+                <LockClosedIcon />
+                2FA is enabled
+              </>
+            ) : (
+              <>
+                <LockOpen1Icon />
+                Enable 2FA
+              </>
+            )}
+          </Link>
+        </div>
         <div>
           <Link
             href="profile/change-email"

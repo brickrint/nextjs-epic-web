@@ -2,7 +2,7 @@
 
 import { db } from "@/server/db";
 import { parseWithZod as parse } from "@conform-to/zod";
-import { generateTOTP, verifyTOTP } from "@epic-web/totp";
+import { verifyTOTP } from "@epic-web/totp";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -21,24 +21,32 @@ import {
   deleteCookie,
   getCookieSessionId,
 } from "@/utils/session.server";
+import { createToastRedirect } from "@/utils/toast.server";
 import {
+  VerifySchema,
+  type VerifySchemaType,
+  codeQueryParam,
   createCookie as createVerificationCookie,
+  deleteUnverifiedCookie,
   deleteCookie as deleteVerificationCookie,
+  getRedirectToParams,
+  getUnverifiedCookie,
   getCookie as getVerificationEmail,
+  prepareVerification,
+  redirectToQueryParam,
+  setUnferifiedCookie,
+  targetQueryParam,
+  twoFAVerificationType,
+  typeQueryParam,
 } from "@/utils/verification.server";
 
+import { handleEmailChange } from "../(profile)/actions";
 import { ForgotPasswordEmail, SignupEmail } from "./emails";
 import {
   ForgotPasswordSchema,
   LoginFormSchema,
   ResetPasswordSchema,
   SignupSchema,
-  type VerificationTypes,
-  VerifySchema,
-  codeQueryParam,
-  redirectToQueryParam,
-  targetQueryParam,
-  typeQueryParam,
 } from "./schema";
 import { SignupFormSchema } from "./schema";
 
@@ -137,7 +145,7 @@ export async function onboard(_: unknown, formData: FormData) {
     remember,
   );
 
-  await deleteVerificationCookie();
+  deleteVerificationCookie();
 
   revalidatePath("/");
   redirect(redirectTo);
@@ -205,18 +213,42 @@ async function validateRequest(body: FormData) {
   const type = submissionValue[typeQueryParam];
   const redirectTo = submissionValue[redirectToQueryParam];
 
-  await db.verification.delete({
-    where: {
-      type_target: {
-        target,
-        type,
+  async function deleteVerification() {
+    await db.verification.delete({
+      where: {
+        type_target: {
+          target,
+          type,
+        },
       },
-    },
-  });
+    });
+  }
 
-  await createVerificationCookie(submissionValue[targetQueryParam]);
-
-  redirect(`/${type}${redirectTo ? `?${redirectTo}` : ""}`);
+  switch (type) {
+    case "change-email": {
+      await deleteVerification();
+      await handleEmailChange(submissionValue);
+    }
+    case "onboarding":
+    case "reset-password": {
+      await deleteVerification();
+      await createVerificationCookie(target);
+      redirect(`/${type}${redirectTo ? `?${redirectTo}` : ""}`);
+    }
+    case "2fa": {
+      await loginWith2FA(submissionValue);
+    }
+    default: {
+      createToastRedirect(
+        {
+          title: "Invalid verification type",
+          type: "error",
+          description: "This verification type is not supported",
+        },
+        "/",
+      );
+    }
+  }
 }
 
 export async function login(_: unknown, formData: FormData) {
@@ -252,17 +284,42 @@ export async function login(_: unknown, formData: FormData) {
 
   const { session, remember = false, redirectTo = "/" } = submission.value;
 
-  await createSessionCookie(
-    cookies(),
-    {
-      id: session.id,
-      expirationDate: session.expirationDate,
+  const twoFAVerification = await db.verification.findUnique({
+    select: { id: true },
+    where: {
+      type_target: {
+        type: twoFAVerificationType,
+        target: session.userId,
+      },
     },
-    remember,
-  );
+  });
 
-  revalidatePath("/");
-  redirect(redirectTo);
+  if (twoFAVerification) {
+    await setUnferifiedCookie({
+      sessionId: session.id,
+      rememberMe: remember,
+    });
+
+    const redirectToSearchParams = getRedirectToParams({
+      target: session.userId,
+      type: twoFAVerificationType,
+      redirectTo,
+    });
+
+    redirect(`/verify?${redirectToSearchParams.toString()}`);
+  } else {
+    await createSessionCookie(
+      cookies(),
+      {
+        id: session.id,
+        expirationDate: session.expirationDate,
+      },
+      remember,
+    );
+
+    revalidatePath("/");
+    redirect(redirectTo);
+  }
 }
 
 export async function logout() {
@@ -273,54 +330,6 @@ export async function logout() {
   deleteCookie(cookies());
   revalidatePath("/");
   redirect("/");
-}
-
-async function prepareVerification({
-  period = 10 * 60,
-  type,
-  target,
-  redirectTo,
-}: {
-  period?: number;
-  type: VerificationTypes;
-  target: string;
-  redirectTo?: string;
-}) {
-  const { otp, ...verificationConfig } = await generateTOTP({
-    algorithm: "SHA-256",
-    period,
-  });
-
-  const verificationData = {
-    type,
-    target,
-    ...verificationConfig,
-    expiresAt: new Date(Date.now() + verificationConfig.period * 1000),
-  };
-
-  await db.verification.upsert({
-    where: {
-      type_target: {
-        target,
-        type,
-      },
-    },
-    create: verificationData,
-    update: verificationData,
-  });
-
-  const redirectToSearchParams = new URLSearchParams();
-
-  if (redirectTo) {
-    redirectToSearchParams.set(redirectToQueryParam, redirectTo);
-  }
-  redirectToSearchParams.set(typeQueryParam, type);
-  redirectToSearchParams.set(targetQueryParam, target);
-
-  return {
-    otp,
-    redirectTo: redirectToSearchParams.toString(),
-  };
 }
 
 export async function forgotPassword(_: unknown, formData: FormData) {
@@ -381,8 +390,6 @@ export async function forgotPassword(_: unknown, formData: FormData) {
 export async function resetPassword(_: unknown, formData: FormData) {
   const resetPasswordUsername = await getVerificationEmail("/login");
 
-  console.log("resetPasswordUsername", resetPasswordUsername);
-
   const submission = parse(formData, {
     schema: ResetPasswordSchema,
   });
@@ -397,14 +404,49 @@ export async function resetPassword(_: unknown, formData: FormData) {
     password,
   });
 
-  await deleteVerificationCookie();
-
-  console.log(
-    "### resetPasswordUsername, password",
-    resetPasswordUsername,
-    password,
-  );
+  deleteVerificationCookie();
 
   revalidatePath("/");
   redirect("/login");
+}
+
+export async function loginWith2FA(submission: VerifySchemaType) {
+  const unverifiedCookie = getUnverifiedCookie();
+
+  if (!unverifiedCookie) {
+    redirect("/login");
+  }
+
+  const { rememberMe, sessionId } = unverifiedCookie;
+
+  const session = await db.session.findUnique({
+    where: { id: sessionId },
+    select: { expirationDate: true },
+  });
+
+  if (!session) {
+    return createToastRedirect(
+      {
+        title: "Invalid session",
+        type: "error",
+        description: "Your session has expired. Please log in again.",
+      },
+      "/login",
+    );
+  }
+
+  await createSessionCookie(
+    cookies(),
+    {
+      id: sessionId,
+      expirationDate: session.expirationDate,
+    },
+    rememberMe,
+  );
+  deleteUnverifiedCookie();
+
+  const { redirectTo = "/" } = submission;
+
+  revalidatePath("/");
+  redirect(redirectTo);
 }

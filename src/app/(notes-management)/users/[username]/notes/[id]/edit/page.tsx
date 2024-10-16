@@ -18,7 +18,10 @@ export default async function NoteEdit({
   }
 
   const note = await getNote(params.id);
-  const editAction = edit.bind(null, { noteId: note.id });
+  const editAction = edit.bind(null, {
+    noteId: note.id,
+    username: user.username,
+  });
 
   return <NoteEditor note={note} action={editAction} />;
 }
