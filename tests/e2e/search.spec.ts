@@ -1,16 +1,23 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "tests/playwright-utils";
 
-test("has title", async ({ page }) => {
+import { invariant } from "@/utils/misc.server";
+
+test("Search from home page", async ({ page, insertNewUser }) => {
+  const user = await insertNewUser();
+
   await page.goto("/");
 
-  await page.getByRole("searchbox", { name: /search/i }).fill("kody");
+  await page.getByRole("searchbox", { name: /search/i }).fill(user.username);
   await page.getByRole("button", { name: /search/i }).click();
 
-  await page.waitForURL(`/users?search=kody`);
+  await page.waitForURL(
+    `/users?${new URLSearchParams({ search: user.username })}`,
+  );
   await expect(page.getByText("Epic Notes Users")).toBeVisible();
   const userList = page.getByRole("main").getByRole("list");
   await expect(userList.getByRole("listitem")).toHaveCount(1);
-  await expect(page.getByAltText("kody")).toBeVisible();
+  invariant(user.name, "User not found");
+  await expect(page.getByAltText(user.name)).toBeVisible();
 
   await page
     .getByRole("searchbox", { name: /search/i })
@@ -20,16 +27,4 @@ test("has title", async ({ page }) => {
 
   await expect(userList.getByRole("listitem")).not.toBeVisible();
   await expect(page.getByText(/no users found/i)).toBeVisible();
-});
-
-test("get started link", async ({ page }) => {
-  await page.goto("https://playwright.dev/");
-
-  // Click the get started link.
-  await page.getByRole("link", { name: "Get started" }).click();
-
-  // Expects page to have a heading with the name of Installation.
-  await expect(
-    page.getByRole("heading", { name: "Installation" }),
-  ).toBeVisible();
 });

@@ -29,7 +29,6 @@ export const env = createEnv({
     HONEYPOT_ENCRYPTION_SEED: z.string(),
     SESSION_SECRET: z.string(),
     RESEND_API_KEY: z.string(),
-    NEXT_RUNTIME: z.enum(["nodejs", "edge"]),
     MOCKS: z.preprocess((val) => {
       return val === "true";
     }, z.boolean()),
@@ -58,7 +57,6 @@ export const env = createEnv({
     HONEYPOT_ENCRYPTION_SEED: process.env.HONEYPOT_ENCRYPTION_SEED,
     SESSION_SECRET: process.env.SESSION_SECRET,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
-    NEXT_RUNTIME: process.env.NEXT_RUNTIME,
     MOCKS: process.env.MOCKS,
   },
   /**
