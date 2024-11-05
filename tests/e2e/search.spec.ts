@@ -1,7 +1,5 @@
 import { expect, test } from "tests/playwright-utils";
 
-import { invariant } from "@/utils/misc.server";
-
 test("Search from home page", async ({ page, insertNewUser }) => {
   const user = await insertNewUser();
 
@@ -16,7 +14,9 @@ test("Search from home page", async ({ page, insertNewUser }) => {
   await expect(page.getByText("Epic Notes Users")).toBeVisible();
   const userList = page.getByRole("main").getByRole("list");
   await expect(userList.getByRole("listitem")).toHaveCount(1);
-  invariant(user.name, "User not found");
+  if (!user.name) {
+    throw new Error("User not found");
+  }
   await expect(page.getByAltText(user.name)).toBeVisible();
 
   await page

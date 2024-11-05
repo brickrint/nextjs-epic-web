@@ -2,7 +2,6 @@ import { db } from "@/server/db";
 import type { Password, Session, User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { addDays } from "date-fns";
-import "server-only";
 
 const SESSION_EXPIRATION_TIME = 30;
 export function getSessionExpirationTime(date = new Date()) {
