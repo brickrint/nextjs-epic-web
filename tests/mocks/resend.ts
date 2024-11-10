@@ -16,6 +16,15 @@ const EmailSchema = z.object({
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const emailFixturesDirPath = path.join(__dirname, "..", "fixtures", "email");
 await fsExtra.ensureDir(emailFixturesDirPath);
+// 🐨 export an async function called requireEmail that takes an email address
+// and returns the email that was sent to that address.
+export async function requireEmail(recipient: string) {
+  return EmailSchema.parse(
+    await fsExtra.readJSON(
+      path.join(emailFixturesDirPath, `${recipient}.json`),
+    ),
+  );
+}
 
 export const handlers: Array<HttpHandler> = [
   http.post("https://api.resend.com/emails", async ({ request }) => {

@@ -41,6 +41,7 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+*.ignored.*
 
 # idea files
 .idea
@@ -50,3 +51,8 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /tests-examples/
+/tests/fixtures/email/
+/coverage
+
+# Easy way to create temporary files/folders that won't accidentally be added to git
+*.local.*
